@@ -1,0 +1,2657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartoon Bhojpuri Skit Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Fredoka & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #070913;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .font-cartoon {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .btn-soft {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-soft:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(244, 114, 182, 0.35);
+        }
+        .btn-soft:active {
+            transform: translateY(0px) scale(0.98);
+        }
+        canvas {
+            touch-action: manipulation;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-3 sm:p-6 bg-gradient-to-b from-slate-950 via-[#0d1326] to-slate-950">
+
+    <!-- Top Navigation Bar -->
+    <header class="w-full max-w-7xl flex items-center justify-between px-4 sm:px-6 py-3.5 glass-panel rounded-2xl shadow-lg z-10 mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-pink-500 flex items-center justify-center text-white text-xl shadow-md">
+                🎭
+            </div>
+            <div>
+                <h1 class="font-cartoon text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-amber-400 to-pink-400 bg-clip-text text-transparent">
+                    Bhojpuri Drama Toon Studio
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">
+                    Interactive Voice-Synthesized Cartoon Skit & Sound Engine
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div id="statusBadge" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900/80 text-slate-300 border border-slate-700 flex items-center gap-1.5">
+                <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="statusText">Ready to Play</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Side-by-Side Workspace -->
+    <main class="w-full max-w-7xl flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch mb-4">
+        
+        <!-- LEFT PANEL: Visual Procedural Canvas Stage -->
+        <section class="lg:col-span-7 flex flex-col glass-panel rounded-3xl shadow-2xl overflow-hidden border border-white/15">
+            <!-- Stage Header -->
+            <div class="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-slate-900/60">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                        Live Stage
+                    </span>
+                    <span id="sceneCounter" class="text-xs font-medium text-slate-300">
+                        Scene: Idle
+                    </span>
+                </div>
+                <button id="testFartBtn" class="btn-soft text-xs font-semibold px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-lime-500/20 to-emerald-500/20 text-lime-300 border border-lime-500/30 flex items-center gap-1.5">
+                    💨 Test Finale FX
+                </button>
+            </div>
+
+            <!-- Cartoon Stage Canvas Viewport -->
+            <div id="stageViewport" class="relative flex-1 min-h-[400px] sm:min-h-[460px] bg-slate-950 overflow-hidden flex flex-col justify-between p-4 select-none">
+                <canvas id="storyCanvas" class="absolute inset-0 w-full h-full block cursor-pointer"></canvas>
+
+                <!-- Speech Bubble Overlay -->
+                <div id="captionContainer" class="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] sm:w-[82%] max-w-lg px-5 py-3 rounded-2xl glass-panel text-center shadow-2xl transition-all duration-300 pointer-events-none z-20">
+                    <span id="bubbleSpeakerBadge" class="block text-[10px] font-bold uppercase tracking-wider text-pink-400 mb-1">Director Cue</span>
+                    <p id="dialogueText" class="text-sm sm:text-base font-semibold text-rose-100 leading-snug drop-shadow">
+                        Press "Play Full Scene" to start the Bhojpuri skit!
+                    </p>
+                </div>
+
+                <!-- Full screen button -->
+                <button id="fullscreenBtn" type="button" class="btn-soft absolute bottom-3 left-3 z-30 flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full bg-black/60 text-white backdrop-blur-sm border border-white/25">
+                    <span id="fsIcon">⛶</span>
+                    <span id="fsText">Full Screen</span>
+                </button>
+
+                <!-- Tap Hint -->
+                <div class="absolute bottom-3 right-3 text-[11px] text-white/60 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm pointer-events-none z-20">
+                    Tap stage for bonus cartoon clouds 💨
+                </div>
+            </div>
+
+            <!-- Stage Playback Controls Footer -->
+            <div class="p-4 bg-slate-900/80 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <button id="playSceneBtn" class="btn-soft px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:opacity-95 text-white font-bold text-sm shadow-lg flex items-center gap-2">
+                        <span id="playBtnIcon">▶️</span>
+                        <span id="playBtnText">Play Full Scene</span>
+                    </button>
+                    <button id="stopSceneBtn" class="btn-soft px-4 py-2.5 rounded-xl glass-panel hover:bg-white/10 text-slate-200 font-semibold text-sm flex items-center gap-1.5">
+                        <span>⏹️</span>
+                        <span>Stop</span>
+                    </button>
+                    <button id="downloadVideoBtn" class="btn-soft px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm shadow-lg flex items-center gap-1.5">
+                        <span id="dlBtnIcon">⬇️</span>
+                        <span id="dlBtnText">Download Video</span>
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="flex-1 min-w-[140px] max-w-xs">
+                    <div class="flex justify-between text-[11px] font-medium text-slate-400 mb-1">
+                        <span>Skit Progress</span>
+                        <span id="progressLabel">0 / 5</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-indigo-400 via-pink-400 to-amber-300 w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: Interactive Dialogue Script & Voice Controller -->
+        <section class="lg:col-span-5 flex flex-col glass-panel rounded-3xl shadow-2xl overflow-hidden border border-white/15">
+            
+            <!-- Script Header -->
+            <div class="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-slate-900/60">
+                <h2 class="font-bold text-sm flex items-center gap-2 text-rose-200">
+                    <span>📜</span>
+                    <span>Dialogue Script & Voice Preview</span>
+                </h2>
+                <span id="voiceCountBadge" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-white/10 text-slate-300">
+                    Loading Voices...
+                </span>
+            </div>
+
+            <!-- Dialogue Lines Container -->
+            <div id="scriptList" class="flex-1 p-4 space-y-3 overflow-y-auto max-h-[360px] lg:max-h-none">
+                <!-- Cards injected dynamically -->
+            </div>
+
+            <!-- Voice Tuning Panel -->
+            <div class="p-4 bg-slate-950/80 border-t border-white/10 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        🎙️ Voice Engine Tuning
+                    </span>
+                    <button id="resetVoicesBtn" class="text-xs text-indigo-400 hover:underline font-medium">
+                        Reset Defaults
+                    </button>
+                </div>
+
+                <!-- Voice Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label for="boyVoiceSelect" class="block text-[11px] font-semibold text-blue-400 mb-1">
+                            👦 Boy Voice (Babiya)
+                        </label>
+                        <select id="boyVoiceSelect" class="w-full text-xs rounded-xl border border-white/15 bg-slate-900 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Auto-Select Male Voice</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="girlVoiceSelect" class="block text-[11px] font-semibold text-pink-400 mb-1">
+                            👧 Girl Voice (Momiya)
+                        </label>
+                        <select id="girlVoiceSelect" class="w-full text-xs rounded-xl border border-white/15 bg-slate-900 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500">
+                            <option value="">Auto-Select Female Voice</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Pitch & Rate Sliders -->
+                <div class="grid grid-cols-3 gap-2 pt-1">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/10">
+                        <div class="flex justify-between text-[10px] font-semibold mb-1">
+                            <span class="text-blue-400">Boy Pitch</span>
+                            <span id="boyPitchVal">0.78</span>
+                        </div>
+                        <input id="boyPitch" type="range" min="0.5" max="1.3" step="0.02" value="0.78" class="w-full accent-blue-500 cursor-pointer">
+                    </div>
+
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/10">
+                        <div class="flex justify-between text-[10px] font-semibold mb-1">
+                            <span class="text-pink-400">Girl Pitch</span>
+                            <span id="girlPitchVal">1.35</span>
+                        </div>
+                        <input id="girlPitch" type="range" min="0.9" max="1.7" step="0.02" value="1.35" class="w-full accent-pink-500 cursor-pointer">
+                    </div>
+
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-white/10">
+                        <div class="flex justify-between text-[10px] font-semibold mb-1">
+                            <span class="text-slate-300">Speed</span>
+                            <span id="speechRateVal">0.95x</span>
+                        </div>
+                        <input id="speechRate" type="range" min="0.7" max="1.3" step="0.05" value="0.95" class="w-full accent-indigo-500 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Human (neural) Hindi voice -->
+                <details id="neuralBox" class="bg-slate-900/80 rounded-xl border border-emerald-500/30 p-2.5">
+                    <summary class="text-[11px] font-bold text-emerald-300 cursor-pointer select-none">
+                        🎤 Human-like Hindi Voices &mdash; puts BOTH voices inside the downloaded video
+                    </summary>
+                    <div class="mt-2 space-y-2">
+                        <p id="neuralHelp" class="text-[10px] text-slate-400 leading-snug"></p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <select id="ttsProvider" class="col-span-3 text-xs rounded-lg border border-white/15 bg-slate-950 text-white px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="eleven">ElevenLabs (free signup, no card needed)</option>
+                                <option value="azure">Microsoft Azure Neural (best Hindi accent)</option>
+                            </select>
+                            <input id="azureKey" type="password" placeholder="Paste API key" class="col-span-2 text-xs rounded-lg border border-white/15 bg-slate-950 text-white px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <div id="regionWrap"><input id="azureRegion" type="text" value="centralindia" placeholder="region" class="w-full text-xs rounded-lg border border-white/15 bg-slate-950 text-white px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <label class="flex items-center gap-1.5 text-[11px] text-slate-300 cursor-pointer">
+                                <input id="neuralEnable" type="checkbox" class="accent-emerald-500"> Use human voices
+                            </label>
+                            <button id="neuralTestBtn" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Test voices</button>
+                        </div>
+                        <label class="flex items-start gap-1.5 text-[11px] text-slate-300 cursor-pointer">
+                            <input id="useGeneratedVoice" type="checkbox" class="accent-pink-500 mt-0.5">
+                            <span>Use the built-in generated voice instead of the original character voices (robotic, but always lands inside the video without any permission)</span>
+                        </label>
+                        <p id="neuralMsg" class="text-[10px] text-slate-400 min-h-[12px]"></p>
+                    </div>
+                </details>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        /**
+         * =========================================================================
+         * 1. SKIT DATA & STATE CONFIGURATION
+         * =========================================================================
+         */
+        const SKIT_LINES = [
+            {
+                id: 0,
+                speaker: 'boy',
+                name: 'Babiya (Boy)',
+                text: 'Momiya hamra se galti hogail hamra ke maaf kardi na jannnnnnn 💔',
+                speechHi: 'मोमिया हमरा से गलती हो गइल, हमरा के माफ़ कर दी ना जान!',
+                speechEnIn: 'Momiya hamra se galti ho gail, hamra ke maaf kar di na jaan!',
+                emotion: 'pleading'
+            },
+            {
+                id: 1,
+                speaker: 'girl',
+                name: 'Momiya (Girl)',
+                text: 'Babiya ham hurt bani ae hi khatir char din से na hagni jannnnnnn 💔',
+                speechHi: 'बबिया हम हर्ट बानी, एही खातिर चार दिन से ना हगनी जान!',
+                speechEnIn: 'Babiya ham hurt bani, ehi khatir char din se na hagni jaan!',
+                emotion: 'dramatic'
+            },
+            {
+                id: 2,
+                speaker: 'boy',
+                name: 'Babiya (Boy)',
+                text: 'Huhh momiya tu kahe na haglu tohar gariya chat lem chali hamra muhiya mein hagdi lekin hamra ke maaf kardina momiya 💔',
+                speechHi: 'हुंह मोमिया तू काहे ना हगलू, तोहार गरिया चाट लेम, चली हमरा मुहिया में हग दी, लेकिन हमरा के माफ़ कर दी ना मोमिया!',
+                speechEnIn: 'Huhh momiya tu kahe na haglu, tohar gariya chat lem, chali hamra muhiya mein hag di, lekin hamra ke maaf kar di na momiya!',
+                emotion: 'desperate'
+            },
+            {
+                id: 3,
+                speaker: 'girl',
+                name: 'Momiya (Girl)',
+                text: 'Babiya chal ab mafi mat mangi na to tohra muhiya mein hagdem jannnnnnnnn 💔',
+                speechHi: 'बबिया चल अब माफ़ी मत मांगी, ना तो तोहरा मुहिया में हग देम जान!',
+                speechEnIn: 'Babiya chal ab maafi mat mangi, na to tohra muhiya mein hag dem jaan!',
+                emotion: 'sassy'
+            },
+            {
+                id: 4,
+                speaker: 'finale',
+                name: 'Warm Hug & Momiya Finale FX',
+                text: '🥹❤️💨 Both hug tightly crying happy tears & Momiya blasts a huge cartoon cloud!',
+                speechHi: 'हा हा हा हा!',
+                speechEnIn: 'Ha ha ha ha!',
+                emotion: 'finale'
+            }
+        ];
+
+        function normalizeTextForSpeech(rawText) {
+            return rawText
+                .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+                .replace(/([a-zA-Z])\1{2,}/g, '$1$1')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        // DOM Elements
+        const playSceneBtn = document.getElementById('playSceneBtn');
+        const playBtnIcon = document.getElementById('playBtnIcon');
+        const playBtnText = document.getElementById('playBtnText');
+        const stopSceneBtn = document.getElementById('stopSceneBtn');
+        const testFartBtn = document.getElementById('testFartBtn');
+        const resetVoicesBtn = document.getElementById('resetVoicesBtn');
+
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const sceneCounter = document.getElementById('sceneCounter');
+        const progressBar = document.getElementById('progressBar');
+        const progressLabel = document.getElementById('progressLabel');
+
+        const bubbleSpeakerBadge = document.getElementById('bubbleSpeakerBadge');
+        const dialogueText = document.getElementById('dialogueText');
+        const scriptList = document.getElementById('scriptList');
+        const voiceCountBadge = document.getElementById('voiceCountBadge');
+
+        const boyVoiceSelect = document.getElementById('boyVoiceSelect');
+        const girlVoiceSelect = document.getElementById('girlVoiceSelect');
+        const boyPitchSlider = document.getElementById('boyPitch');
+        const girlPitchSlider = document.getElementById('girlPitch');
+        const speechRateSlider = document.getElementById('speechRate');
+        const boyPitchVal = document.getElementById('boyPitchVal');
+        const girlPitchVal = document.getElementById('girlPitchVal');
+        const speechRateVal = document.getElementById('speechRateVal');
+
+        const storyCanvas = document.getElementById('storyCanvas');
+        const ctx = storyCanvas.getContext('2d');
+
+        // Runtime State
+        let availableVoices = [];
+        let isPlayingSequence = false;
+        let currentStepIndex = -1;
+        let activeSpeaker = 'none';
+        let isVoiceSpeaking = false;
+        let activeUtterance = null;
+        let fallbackTimer = null;
+        let audioCtx = null;
+
+        /**
+         * =========================================================================
+         * 2. WEB AUDIO API: SYNTHESIZED CARTOON SOUND EFFECTS
+         * =========================================================================
+         */
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+        }
+
+        function playCartoonFartSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            const duration = 1.15;
+
+            // Main bass oscillator with comical pitch drop
+            const osc = audioCtx.createOscillator();
+            const subOsc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sawtooth';
+            subOsc.type = 'triangle';
+
+            osc.frequency.setValueAtTime(145, now);
+            osc.frequency.exponentialRampToValueAtTime(52, now + duration * 0.85);
+            osc.frequency.exponentialRampToValueAtTime(38, now + duration);
+
+            subOsc.frequency.setValueAtTime(75, now);
+            subOsc.frequency.exponentialRampToValueAtTime(28, now + duration);
+
+            // Flutter modulation for realistic cartoon sputtering
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
+            lfo.frequency.setValueAtTime(24, now);
+            lfo.frequency.linearRampToValueAtTime(14, now + duration);
+            lfoGain.gain.setValueAtTime(28, now);
+
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(460, now);
+            filter.Q.setValueAtTime(4.5, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.42, now + 0.06);
+            gain.gain.setValueAtTime(0.36, now + duration * 0.65);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            osc.connect(filter);
+            subOsc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            subOsc.start(now);
+            lfo.start(now);
+
+            osc.stop(now + duration + 0.05);
+            subOsc.stop(now + duration + 0.05);
+            lfo.stop(now + duration + 0.05);
+        }
+
+        /**
+         * =========================================================================
+         * 3. WEB SPEECH API: BHOJPURI / HINDI VOICE ENGINE
+         * =========================================================================
+         */
+        function loadVoices() {
+            if (!('speechSynthesis' in window)) {
+                voiceCountBadge.textContent = 'TTS Unsupported';
+                return;
+            }
+
+            availableVoices = window.speechSynthesis.getVoices();
+            if (!availableVoices.length) {
+                voiceCountBadge.textContent = 'Loading Voices...';
+                return;
+            }
+
+            voiceCountBadge.textContent = `${availableVoices.length} Voices Ready`;
+
+            const prevBoy = boyVoiceSelect.value;
+            const prevGirl = girlVoiceSelect.value;
+
+            boyVoiceSelect.innerHTML = '<option value="">Auto-Select Male (Bhojpuri/Hindi)</option>';
+            girlVoiceSelect.innerHTML = '<option value="">Auto-Select Female (Bhojpuri/Hindi)</option>';
+
+            const hindiVoices = availableVoices.filter(v => v.lang.toLowerCase().startsWith('hi'));
+            const indianEnVoices = availableVoices.filter(v => v.lang.toLowerCase() === 'en-in');
+            const otherVoices = availableVoices.filter(v =>
+                !v.lang.toLowerCase().startsWith('hi') && v.lang.toLowerCase() !== 'en-in'
+            );
+
+            const sortedVoices = [...hindiVoices, ...indianEnVoices, ...otherVoices];
+
+            sortedVoices.forEach(voice => {
+                const optBoy = document.createElement('option');
+                optBoy.value = voice.name;
+                optBoy.textContent = `${voice.name} (${voice.lang})`;
+                boyVoiceSelect.appendChild(optBoy);
+
+                const optGirl = document.createElement('option');
+                optGirl.value = voice.name;
+                optGirl.textContent = `${voice.name} (${voice.lang})`;
+                girlVoiceSelect.appendChild(optGirl);
+            });
+
+            if (prevBoy) boyVoiceSelect.value = prevBoy;
+            if (prevGirl) girlVoiceSelect.value = prevGirl;
+
+            // Auto-assign best matching Indian/Hindi male & female voices
+            if (!boyVoiceSelect.value) {
+                const maleHint = /(male|man|ravi|hemant|prabhat|madhur|david|daniel|mark|google हिन्दी)/i;
+                const bestBoy =
+                    hindiVoices.find(v => maleHint.test(v.name)) ||
+                    indianEnVoices.find(v => maleHint.test(v.name)) ||
+                    hindiVoices[0] ||
+                    indianEnVoices[0] ||
+                    availableVoices[0];
+                if (bestBoy) boyVoiceSelect.value = bestBoy.name;
+            }
+
+            if (!girlVoiceSelect.value) {
+                const femaleHint = /(female|woman|swara|heera|kalpana|lekha|neerja|priya|aditi|raveena|zira|samantha|google हिन्दी)/i;
+                const bestGirl =
+                    hindiVoices.find(v => femaleHint.test(v.name)) ||
+                    indianEnVoices.find(v => femaleHint.test(v.name)) ||
+                    hindiVoices.find(v => v.name !== boyVoiceSelect.value) ||
+                    hindiVoices[0] ||
+                    indianEnVoices[0] ||
+                    availableVoices[0];
+                if (bestGirl) girlVoiceSelect.value = bestGirl.name;
+            }
+        }
+
+        function speakLine(line, onCompleteCallback) {
+            if (!('speechSynthesis' in window)) {
+                setTimeout(onCompleteCallback, 1800);
+                return;
+            }
+
+            clearTimeout(fallbackTimer);
+
+            if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+                try {
+                    window.speechSynthesis.cancel();
+                } catch (e) {}
+            }
+
+            const isBoy = line.speaker === 'boy';
+            const selectedName = isBoy ? boyVoiceSelect.value : girlVoiceSelect.value;
+            const chosenVoice = availableVoices.find(v => v.name === selectedName) || availableVoices[0] || null;
+
+            const voiceLang = chosenVoice ? chosenVoice.lang.toLowerCase() : 'hi-in';
+            const usesHindiScript = voiceLang.startsWith('hi');
+
+            const textToSpeak = usesHindiScript
+                ? (line.speechHi || normalizeTextForSpeech(line.text))
+                : (line.speechEnIn || normalizeTextForSpeech(line.text));
+
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            activeUtterance = utterance;
+
+            if (chosenVoice) {
+                utterance.voice = chosenVoice;
+                utterance.lang = chosenVoice.lang;
+            } else {
+                utterance.lang = 'hi-IN';
+            }
+
+            const basePitch = isBoy
+                ? parseFloat(boyPitchSlider.value)
+                : parseFloat(girlPitchSlider.value);
+
+            // If Boy and Girl share the same single Hindi voice on a device, separate pitch strongly
+            const sameVoiceSelected = boyVoiceSelect.value && boyVoiceSelect.value === girlVoiceSelect.value;
+            utterance.pitch = sameVoiceSelected
+                ? (isBoy ? Math.max(0.62, basePitch - 0.14) : Math.min(1.65, basePitch + 0.15))
+                : basePitch;
+
+            utterance.rate = parseFloat(speechRateSlider.value);
+            utterance.volume = 1.0;
+
+            const wordCount = textToSpeak.split(/\s+/).length;
+            const safetyTimeoutMs = Math.max(3000, wordCount * 520 + 1800);
+
+            let finished = false;
+            const finishOnce = () => {
+                if (finished) return;
+                finished = true;
+                isVoiceSpeaking = false;
+                clearTimeout(fallbackTimer);
+                activeUtterance = null;
+                onCompleteCallback();
+            };
+
+            utterance.onstart = () => {
+                isVoiceSpeaking = true;
+            };
+            utterance.onend = finishOnce;
+            utterance.onerror = (err) => {
+                if (err && err.error === 'interrupted') return;
+                finishOnce();
+            };
+
+            fallbackTimer = setTimeout(finishOnce, safetyTimeoutMs);
+
+            try {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+                isVoiceSpeaking = true;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                finishOnce();
+            }
+        }
+
+        /**
+         * =========================================================================
+         * 4. UI & SCRIPT CARD RENDERING
+         * =========================================================================
+         */
+        function updateStatusBadge(label, isActive) {
+            statusText.textContent = label;
+            statusDot.className = isActive
+                ? 'w-2 h-2 rounded-full bg-amber-400 animate-ping'
+                : 'w-2 h-2 rounded-full bg-emerald-400';
+        }
+
+        function updateStageVisuals(line) {
+            activeSpeaker = line.speaker;
+            sceneCounter.textContent = `Scene ${line.id + 1} of ${SKIT_LINES.length}`;
+            dialogueText.textContent = line.text;
+
+            if (line.speaker === 'boy') {
+                bubbleSpeakerBadge.textContent = '👦 Babiya (Boy)';
+                bubbleSpeakerBadge.className = 'block text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1';
+            } else if (line.speaker === 'girl') {
+                bubbleSpeakerBadge.textContent = '👧 Momiya (Girl)';
+                bubbleSpeakerBadge.className = 'block text-[10px] font-bold uppercase tracking-wider text-pink-400 mb-1';
+            } else {
+                bubbleSpeakerBadge.textContent = '🥹❤️💨 Warm Hug & Finale FX';
+                bubbleSpeakerBadge.className = 'block text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1';
+            }
+        }
+
+        function highlightActiveCard(index) {
+            document.querySelectorAll('.script-card').forEach((card, i) => {
+                if (i === index) {
+                    card.classList.add('ring-2', 'ring-pink-500', 'bg-slate-800/90');
+                } else {
+                    card.classList.remove('ring-2', 'ring-pink-500', 'bg-slate-800/90');
+                }
+            });
+        }
+
+        function renderScriptCards() {
+            scriptList.innerHTML = '';
+            SKIT_LINES.forEach((line, idx) => {
+                const isBoy = line.speaker === 'boy';
+                const isGirl = line.speaker === 'girl';
+
+                const badgeColor = isBoy
+                    ? 'bg-blue-500/20 text-blue-300 border-blue-400/30'
+                    : isGirl
+                        ? 'bg-pink-500/20 text-pink-300 border-pink-400/30'
+                        : 'bg-amber-500/20 text-amber-300 border-amber-400/30';
+
+                const avatar = isBoy ? '👦' : isGirl ? '👧' : '💨';
+
+                const card = document.createElement('div');
+                card.className = 'script-card p-3.5 rounded-2xl bg-slate-900/70 border border-white/10 transition-all hover:border-white/25 flex items-start justify-between gap-3';
+                card.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-base">${avatar}</span>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeColor}">
+                                ${line.name}
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-medium">#${idx + 1}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                            ${line.text}
+                        </p>
+                    </div>
+                    <button data-preview-idx="${idx}" class="preview-line-btn shrink-0 w-9 h-9 rounded-xl bg-white/10 hover:bg-pink-500/30 text-white flex items-center justify-center transition" title="Preview this line">
+                        🔊
+                    </button>
+                `;
+                scriptList.appendChild(card);
+            });
+
+            document.querySelectorAll('.preview-line-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.previewIdx, 10);
+                    const line = SKIT_LINES[idx];
+                    initAudioContext();
+                    isPlayingSequence = false;
+                    currentStepIndex = idx;
+                    updateStageVisuals(line);
+                    highlightActiveCard(idx);
+                    updateStatusBadge(`Previewing #${idx + 1}`, true);
+
+                    if (line.speaker === 'finale') {
+                        playCartoonFartSound();
+                        spawnFartClouds();
+                    }
+
+                    speakLine(line, () => {
+                        updateStatusBadge('Ready to Play', false);
+                    });
+                });
+            });
+        }
+
+        /**
+         * =========================================================================
+         * 5. PROCEDURAL REALISTIC STAGE & CHARACTER ANIMATION ENGINE
+         * =========================================================================
+         */
+        let W = 800, H = 450, dpr = 1;
+        const particles = [];
+
+        const rainDrops = Array.from({ length: 70 }, () => ({
+            x: Math.random(),
+            y: Math.random(),
+            speed: 0.65 + Math.random() * 0.55,
+            len: 9 + Math.random() * 11
+        }));
+
+        const ambientPetals = Array.from({ length: 24 }, () => ({
+            x: Math.random(),
+            y: Math.random(),
+            vx: -0.015 + Math.random() * 0.04,
+            vy: 0.03 + Math.random() * 0.04,
+            size: 3.5 + Math.random() * 4,
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 2.0,
+            hue: Math.random() > 0.5 ? '#fda4af' : '#fde68a'
+        }));
+
+        const charRig = {
+            boyXRatio: 0.24,
+            girlXRatio: 0.76,
+            boyKneel: 0,
+            hugProgress: 0,
+            warmth: 0,
+            walkCycleBoy: 0,
+            walkCycleGirl: 0
+        };
+
+        const groundPoops = [];
+
+        function lerp(a, b, t) {
+            return a + (b - a) * Math.min(1, Math.max(0, t));
+        }
+
+        function lerpColor(hexA, hexB, t) {
+            const a = parseInt(hexA.slice(1), 16);
+            const b = parseInt(hexB.slice(1), 16);
+            const rA = (a >> 16) & 255, gA = (a >> 8) & 255, bA = a & 255;
+            const rB = (b >> 16) & 255, gB = (b >> 8) & 255, bB = b & 255;
+            const r = Math.round(lerp(rA, rB, t));
+            const g = Math.round(lerp(gA, gB, t));
+            const bl = Math.round(lerp(bA, bB, t));
+            return `rgb(${r}, ${g}, ${bl})`;
+        }
+
+        function resizeCanvas() {
+            if (window.__recLock) return;   // keep the recorded frame size fixed (e.g. when switching to full screen mid-recording)
+            const rect = storyCanvas.parentElement.getBoundingClientRect();
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = rect.width || 800;
+            H = rect.height || 450;
+            storyCanvas.width = W * dpr;
+            storyCanvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function spawnFartClouds() {
+            const w = W;
+            const h = H;
+            const groundY = h * 0.78;
+            // Originates directly at Momiya's lower hip/dress back edge
+            const hipX = w * charRig.girlXRatio + 12;
+            const hipY = groundY - 22;
+            const colors = ['#a3e635', '#bef264', '#fde047', '#84cc16', '#4ade80'];
+
+            for (let i = 0; i < 52; i++) {
+                const spreadAngle = (Math.random() - 0.35) * 0.85;
+                const speed = 2.0 + Math.random() * 4.5;
+                particles.push({
+                    type: 'cloud',
+                    x: hipX + (Math.random() - 0.2) * 14,
+                    y: hipY + (Math.random() - 0.5) * 12,
+                    vx: Math.cos(spreadAngle) * speed,
+                    vy: Math.sin(spreadAngle) * speed - 0.6,
+                    radius: Math.random() * 24 + 13,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 0.96,
+                    decay: 0.009 + Math.random() * 0.006
+                });
+            }
+
+            // Cartoon poop emerges directly from Momiya's lower back/hip and drops in an arc onto the ground
+            groundPoops.push({
+                startX: hipX - 2,
+                startY: hipY,
+                x: hipX - 2,
+                y: hipY,
+                vx: 1.55 + Math.random() * 0.55,
+                vy: -1.1,
+                rotation: -0.35,
+                vRot: 0.08,
+                targetY: groundY - 1,
+                landed: false,
+                emergeProgress: 0,
+                wobbleTime: 0
+            });
+
+            ['💨', '💨', '🥹', '❤️', '😂'].forEach((emoji, i) => {
+                particles.push({
+                    type: 'emoji',
+                    text: emoji,
+                    x: w * (0.45 + i * 0.042),
+                    y: h * 0.54,
+                    vx: (Math.random() - 0.35) * 2.2,
+                    vy: -1.7 - Math.random() * 1.1,
+                    alpha: 1,
+                    decay: 0.011
+                });
+            });
+        }
+
+        function drawFloatingTag(label, x, y, bgColor, borderColor, time) {
+            const floatY = y + Math.sin(time * 3.0) * 3.5;
+            ctx.save();
+            ctx.font = "700 12px 'Outfit', sans-serif";
+            const textW = ctx.measureText(label).width;
+            const pillW = Math.max(46, textW + 24);
+            const pillH = 24;
+
+            ctx.shadowColor = borderColor;
+            ctx.shadowBlur = 12;
+
+            ctx.fillStyle = bgColor;
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.roundRect(x - pillW / 2, floatY - pillH, pillW, pillH, 12);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x - 4, floatY);
+            ctx.lineTo(x + 4, floatY);
+            ctx.lineTo(x, floatY + 5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(label, x, floatY - pillH / 2 + 0.5);
+            ctx.restore();
+        }
+
+        function drawBackground(state) {
+            const topColor = lerpColor("#0b1120", "#451a03", state.warmth);
+            const midColor = lerpColor("#172554", "#9a3412", state.warmth);
+            const botColor = lerpColor("#0f172a", "#431407", state.warmth);
+
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, topColor);
+            grad.addColorStop(0.55, midColor);
+            grad.addColorStop(1, botColor);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Moon / Sunset Glow
+            const moonX = W * 0.74;
+            const moonY = H * 0.22;
+            const moonGlow = ctx.createRadialGradient(moonX, moonY, 8, moonX, moonY, 125);
+            if (state.warmth > 0.4) {
+                moonGlow.addColorStop(0, `rgba(253, 224, 71, ${0.42 * state.warmth})`);
+                moonGlow.addColorStop(0.45, `rgba(251, 146, 60, ${0.18 * state.warmth})`);
+            } else {
+                moonGlow.addColorStop(0, "rgba(186, 230, 253, 0.25)");
+                moonGlow.addColorStop(0.5, "rgba(125, 211, 252, 0.08)");
+            }
+            moonGlow.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = moonGlow;
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 125, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Distant Twilight City Skyline Silhouette
+            ctx.fillStyle = lerpColor("#090d16", "#29150b", state.warmth);
+            const buildings = [
+                [0.02, 0.12, 0.22], [0.15, 0.10, 0.30], [0.27, 0.14, 0.18],
+                [0.44, 0.11, 0.26], [0.58, 0.15, 0.20], [0.76, 0.12, 0.28], [0.89, 0.11, 0.21]
+            ];
+            const groundTop = H * 0.78;
+            buildings.forEach(([bx, bw, bh]) => {
+                ctx.fillRect(W * bx, groundTop - H * bh, W * bw, H * bh);
+            });
+
+            // Vintage Streetlamp on Left
+            const lampX = W * 0.14;
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 4.5;
+            ctx.beginPath();
+            ctx.moveTo(lampX, groundTop);
+            ctx.lineTo(lampX, H * 0.30);
+            ctx.stroke();
+
+            ctx.fillStyle = state.warmth > 0.4 ? "#fde047" : "#bae6fd";
+            ctx.beginPath();
+            ctx.ellipse(lampX, H * 0.28, 12, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            const lampHalo = ctx.createRadialGradient(lampX, H * 0.34, 4, lampX, H * 0.42, 85);
+            lampHalo.addColorStop(0, state.warmth > 0.4 ? "rgba(253, 224, 71, 0.32)" : "rgba(186, 230, 253, 0.22)");
+            lampHalo.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = lampHalo;
+            ctx.beginPath();
+            ctx.arc(lampX, H * 0.40, 85, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ground / Wet Evening Pavement
+            const groundGrad = ctx.createLinearGradient(0, groundTop, 0, H);
+            groundGrad.addColorStop(0, lerpColor("#1e293b", "#422006", state.warmth));
+            groundGrad.addColorStop(0.4, lerpColor("#0f172a", "#292524", state.warmth));
+            groundGrad.addColorStop(1, "#020617");
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, groundTop, W, H - groundTop);
+
+            ctx.strokeStyle = state.warmth > 0.4
+                ? `rgba(251, 191, 36, ${0.18 * state.warmth})`
+                : "rgba(148, 163, 184, 0.16)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, groundTop + 1);
+            ctx.lineTo(W, groundTop + 1);
+            ctx.stroke();
+        }
+
+        function drawAmbientAtmosphere(dt, state) {
+            const rainAlpha = Math.max(0.08, 0.35 * (1 - state.warmth));
+            ctx.save();
+            ctx.strokeStyle = `rgba(186, 230, 253, ${rainAlpha})`;
+            ctx.lineWidth = 1.2;
+            ctx.lineCap = "round";
+
+            for (const drop of rainDrops) {
+                const x = drop.x * W;
+                const y = (drop.y * H * 1.25) % (H + 30) - 15;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 1.5, y + drop.len);
+                ctx.stroke();
+
+                drop.y += drop.speed * dt * 0.9;
+                if (drop.y > 1.15) {
+                    drop.y = -0.05;
+                    drop.x = Math.random();
+                }
+            }
+            ctx.restore();
+
+            // Drifting Romantic Petals
+            const petalAlpha = 0.28 + state.warmth * 0.65;
+            for (const p of ambientPetals) {
+                p.x += p.vx * dt * 15;
+                p.y += p.vy * dt * 15;
+                p.rot += p.vRot * dt;
+
+                if (p.y > 1.15 || p.x < -0.1 || p.x > 1.1) {
+                    p.x = Math.random();
+                    p.y = -0.05;
+                }
+
+                ctx.save();
+                ctx.translate(p.x * W, p.y * H);
+                ctx.rotate(p.rot);
+                ctx.globalAlpha = petalAlpha;
+                ctx.fillStyle = p.hue;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function drawBoy(x, y, state) {
+            ctx.save();
+            const breath = Math.sin(state.time * 2.1) * 1.2;
+            const isSpeaking = state.isMouthMoving;
+            const kneel = state.kneel;
+            const hug = state.hug;
+            const walk = state.walkSpeed;
+            const stride = Math.sin(state.walkCycle) * walk;
+            const walkBob = Math.abs(Math.cos(state.walkCycle)) * walk * 2.5;
+            const wobble = state.activeSpeaker === 'finale' ? Math.sin(state.time * 22) * 3.5 : 0;
+
+            ctx.translate(x + wobble, y);
+
+            // Ground contact shadow
+            ctx.fillStyle = "rgba(0,0,0,0.28)";
+            ctx.beginPath();
+            ctx.ellipse(0, 2, 26 + kneel * 8, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.translate(0, breath - walkBob + kneel * 10);
+            if (state.headTilt) {
+                ctx.rotate(state.headTilt * 0.25);
+            }
+
+            // Soft character rim aura
+            const auraCol = hug > 0.5 ? "rgba(251, 191, 36, 0.32)" : "rgba(96, 165, 250, 0.25)";
+            const aura = ctx.createRadialGradient(0, -65, 8, 0, -65, 90);
+            aura.addColorStop(0, auraCol);
+            aura.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = aura;
+            ctx.beginPath();
+            ctx.arc(0, -65, 90, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // === LEGS WITH NATURAL WALKING STRIDE OR KNEELING ===
+            ctx.strokeStyle = "#1e3a5f";
+            ctx.lineWidth = 8.5;
+
+            if (kneel > 0.45) {
+                ctx.beginPath();
+                ctx.moveTo(-6, -30);
+                ctx.quadraticCurveTo(-18, -14, -14, -10);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(6, -30);
+                ctx.quadraticCurveTo(18, -14, 14, -10);
+                ctx.stroke();
+
+                ctx.fillStyle = "#0f172a";
+                ctx.beginPath();
+                ctx.ellipse(-15, -9, 7, 3.2, -0.15, 0, Math.PI * 2);
+                ctx.ellipse(15, -9, 7, 3.2, 0.15, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                const leftFootX = -7 - stride * 10;
+                const rightFootX = 7 + stride * 10;
+                const leftFootY = -Math.max(0, -stride) * 4;
+                const rightFootY = -Math.max(0, stride) * 4;
+
+                ctx.beginPath();
+                ctx.moveTo(-6, -30);
+                ctx.lineTo(leftFootX, leftFootY);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(6, -30);
+                ctx.lineTo(rightFootX, rightFootY);
+                ctx.stroke();
+
+                ctx.fillStyle = "#0f172a";
+                ctx.beginPath();
+                ctx.ellipse(leftFootX, leftFootY + 1, 7.5, 3.2, 0, 0, Math.PI * 2);
+                ctx.ellipse(rightFootX, rightFootY + 1, 7.5, 3.2, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // === TORSO / JACKET ===
+            ctx.fillStyle = "#2563eb";
+            ctx.beginPath();
+            ctx.roundRect(-15, -56, 30, 30, 8);
+            ctx.fill();
+
+            // Subtle jacket highlight
+            ctx.fillStyle = "rgba(255,255,255,0.14)";
+            ctx.beginPath();
+            ctx.roundRect(-10, -54, 10, 24, 4);
+            ctx.fill();
+
+            // === EXPRESSIVE ARMS ===
+            ctx.strokeStyle = "#f5d0c5";
+            ctx.lineWidth = 6.8;
+            if (hug > 0.45) {
+                // Warm embrace wrapped around Momiya
+                ctx.beginPath();
+                ctx.moveTo(10, -52);
+                ctx.quadraticCurveTo(32, -44, 44, -34);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(-10, -50);
+                ctx.quadraticCurveTo(16, -34, 30, -28);
+                ctx.stroke();
+            } else if (kneel > 0.35 || isSpeaking) {
+                // Heartfelt pleading gesture toward Momiya
+                const gesture = isSpeaking ? Math.sin(state.time * 4.5) * 3 : 0;
+                ctx.beginPath();
+                ctx.moveTo(-12, -52);
+                ctx.quadraticCurveTo(-4, -38, 16, -42 + gesture);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(12, -52);
+                ctx.quadraticCurveTo(22, -40, 20, -44 - gesture);
+                ctx.stroke();
+            } else {
+                const armSwing = stride * 7;
+                ctx.beginPath();
+                ctx.moveTo(-12, -52);
+                ctx.quadraticCurveTo(-18, -36, -14 + armSwing, -22);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(12, -52);
+                ctx.quadraticCurveTo(18, -36, 14 - armSwing, -22);
+                ctx.stroke();
+            }
+
+            // === HEAD ===
+            ctx.fillStyle = "#f5d0c5";
+            ctx.beginPath();
+            ctx.arc(0, -75, 16.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Styled Hair
+            ctx.fillStyle = "#0f172a";
+            ctx.beginPath();
+            ctx.ellipse(0, -83, 17.5, 13.5, 0, Math.PI, 0);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(-15, -78);
+            ctx.quadraticCurveTo(-20, -60, -12, -52);
+            ctx.quadraticCurveTo(-10, -64, -12, -78);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(15, -78);
+            ctx.quadraticCurveTo(20, -60, 12, -52);
+            ctx.quadraticCurveTo(10, -64, 12, -78);
+            ctx.fill();
+
+            // Expressive Eyes
+            ctx.fillStyle = "#1e293b";
+            ctx.beginPath();
+            ctx.ellipse(-6, -76, 2.8, 3.6, 0, 0, Math.PI * 2);
+            ctx.ellipse(6, -76, 2.8, 3.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eye catchlights
+            ctx.fillStyle = "rgba(255,255,255,0.85)";
+            ctx.beginPath();
+            ctx.arc(-5.2, -77, 1.0, 0, Math.PI * 2);
+            ctx.arc(6.8, -77, 1.0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Emotional glistening tears (continues as happy tears in finale!)
+            ctx.fillStyle = state.activeSpeaker === 'finale'
+                ? "rgba(186, 230, 253, 0.95)"
+                : "rgba(125, 211, 252, 0.85)";
+            ctx.beginPath();
+            ctx.ellipse(-6.5, -65 + Math.sin(state.time * 3.4) * 2, 2.2, 3.8, 0, 0, Math.PI * 2);
+            ctx.ellipse(6.5, -66 + Math.sin(state.time * 3.1 + 1) * 2, 2.2, 3.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Animated Mouth (strictly synced to voice synthesis)
+            ctx.strokeStyle = "#9f1239";
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            if (isSpeaking) {
+                const talkOpen = 2.5 + Math.abs(Math.sin(state.time * 14)) * 3;
+                ctx.ellipse(0, -66.5, 4.2, talkOpen, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#881337";
+                ctx.fill();
+            } else if (hug > 0.45) {
+                ctx.arc(0, -68, 4.8, 0.18, Math.PI - 0.18);
+                ctx.stroke();
+            } else {
+                ctx.moveTo(-4.5, -66);
+                ctx.quadraticCurveTo(0, -62, 4.5, -66);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function drawGirl(x, y, state) {
+            ctx.save();
+            const breath = Math.sin(state.time * 2.2 + 0.8) * 1.2;
+            const isSpeaking = state.isMouthMoving;
+            const hug = state.hug;
+            const walk = state.walkSpeed;
+            const stride = Math.sin(state.walkCycle) * walk;
+            const walkBob = Math.abs(Math.cos(state.walkCycle)) * walk * 2.2;
+            const wobble = state.activeSpeaker === 'finale' ? Math.sin(state.time * 24 + 0.5) * 4.5 : 0;
+
+            ctx.translate(x + wobble, y);
+
+            // Ground contact shadow
+            ctx.fillStyle = "rgba(0,0,0,0.26)";
+            ctx.beginPath();
+            ctx.ellipse(0, 2, 26, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.translate(0, breath - walkBob);
+            if (state.headTilt) {
+                ctx.rotate(state.headTilt * 0.3);
+            }
+
+            // Soft character rim aura
+            const auraCol = hug > 0.5 ? "rgba(251, 191, 36, 0.34)" : "rgba(244, 114, 182, 0.25)";
+            const aura = ctx.createRadialGradient(0, -65, 8, 0, -65, 90);
+            aura.addColorStop(0, auraCol);
+            aura.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = aura;
+            ctx.beginPath();
+            ctx.arc(0, -65, 90, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // === LEGS WITH NATURAL WALKING STRIDE ===
+            ctx.strokeStyle = "#f5d0c5";
+            ctx.lineWidth = 7.2;
+            const leftFootX = -6 - stride * 9;
+            const rightFootX = 6 + stride * 9;
+            const leftFootY = -Math.max(0, -stride) * 3.5;
+            const rightFootY = -Math.max(0, stride) * 3.5;
+
+            ctx.beginPath();
+            ctx.moveTo(-6, -28);
+            ctx.lineTo(leftFootX, leftFootY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(6, -28);
+            ctx.lineTo(rightFootX, rightFootY);
+            ctx.stroke();
+
+            ctx.fillStyle = "#be123c";
+            ctx.beginPath();
+            ctx.ellipse(leftFootX, leftFootY + 1, 6.8, 3.0, 0, 0, Math.PI * 2);
+            ctx.ellipse(rightFootX, rightFootY + 1, 6.8, 3.0, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // === FLOWING DRESS ===
+            ctx.fillStyle = "#e11d48";
+            ctx.beginPath();
+            ctx.moveTo(-16, -54);
+            ctx.quadraticCurveTo(-22, -26, -18, -14);
+            ctx.lineTo(18, -14);
+            ctx.quadraticCurveTo(22, -26, 16, -54);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = "rgba(255,255,255,0.14)";
+            ctx.beginPath();
+            ctx.moveTo(-6, -52);
+            ctx.quadraticCurveTo(-4, -26, -2, -16);
+            ctx.lineTo(4, -16);
+            ctx.quadraticCurveTo(2, -26, 0, -52);
+            ctx.closePath();
+            ctx.fill();
+
+            // === EXPRESSIVE ARMS ===
+            ctx.strokeStyle = "#f5d0c5";
+            ctx.lineWidth = 6.4;
+            if (hug > 0.45) {
+                // Warm embrace wrapped around Babiya
+                ctx.beginPath();
+                ctx.moveTo(-10, -50);
+                ctx.quadraticCurveTo(-32, -42, -44, -32);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(10, -48);
+                ctx.quadraticCurveTo(-16, -32, -30, -26);
+                ctx.stroke();
+            } else if (isSpeaking) {
+                // Expressive hand gesture while speaking
+                const wave = Math.sin(state.time * 4.2) * 3.5;
+                ctx.beginPath();
+                ctx.moveTo(-11, -50);
+                ctx.quadraticCurveTo(-22, -40, -16, -34 + wave);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(11, -50);
+                ctx.quadraticCurveTo(18, -34, 10, -26);
+                ctx.stroke();
+            } else {
+                const armSwing = stride * 6;
+                ctx.beginPath();
+                ctx.moveTo(-11, -50);
+                ctx.quadraticCurveTo(-17, -34, -13 + armSwing, -22);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(11, -50);
+                ctx.quadraticCurveTo(17, -34, 13 - armSwing, -22);
+                ctx.stroke();
+            }
+
+            // === HEAD ===
+            ctx.fillStyle = "#f5d0c5";
+            ctx.beginPath();
+            ctx.arc(0, -74, 17, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Long Flowing Hair
+            ctx.fillStyle = "#1e1b4b";
+            ctx.beginPath();
+            ctx.ellipse(0, -82, 18.5, 14.5, 0, Math.PI, 0);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(-15, -76);
+            ctx.quadraticCurveTo(-22, -52, -13, -38);
+            ctx.quadraticCurveTo(-9, -52, -11, -74);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(15, -76);
+            ctx.quadraticCurveTo(22, -52, 13, -38);
+            ctx.quadraticCurveTo(9, -52, 11, -74);
+            ctx.fill();
+
+            // Expressive Eyes
+            ctx.fillStyle = "#1e293b";
+            ctx.beginPath();
+            ctx.ellipse(-6.5, -75, 3.0, 3.8, 0, 0, Math.PI * 2);
+            ctx.ellipse(6.5, -75, 3.0, 3.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "rgba(255,255,255,0.85)";
+            ctx.beginPath();
+            ctx.arc(-5.6, -76, 1.0, 0, Math.PI * 2);
+            ctx.arc(7.4, -76, 1.0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Happy tears flowing down Momiya's cheeks during the hug finale
+            if (hug > 0.35 || state.activeSpeaker === 'finale') {
+                ctx.fillStyle = "rgba(186, 230, 253, 0.95)";
+                ctx.beginPath();
+                ctx.ellipse(-6.8, -64 + Math.sin(state.time * 3.5) * 2, 2.2, 3.8, 0, 0, Math.PI * 2);
+                ctx.ellipse(6.8, -65 + Math.sin(state.time * 3.2 + 0.8) * 2, 2.2, 3.8, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Mouth (strictly synced to voice synthesis)
+            ctx.strokeStyle = "#be123c";
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            if (isSpeaking) {
+                const talkOpen = 2.4 + Math.abs(Math.sin(state.time * 13 + 0.5)) * 2.8;
+                ctx.ellipse(0, -65.5, 4.0, talkOpen, 0, 0, Math.PI * 2);
+                ctx.fillStyle = "#9f1239";
+                ctx.fill();
+            } else if (hug > 0.45 || state.activeSpeaker === 'finale') {
+                ctx.arc(0, -66.5, 5.0, 0.15, Math.PI - 0.15);
+                ctx.stroke();
+            } else {
+                ctx.moveTo(-4.5, -65.5);
+                ctx.quadraticCurveTo(0, -62, 4.5, -65.5);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                if (p.type === 'cloud') {
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 14;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'emoji') {
+                    ctx.font = '26px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(p.text, p.x, p.y);
+                }
+                ctx.restore();
+            }
+        }
+
+        function drawGroundPoops(dt) {
+            const groundY = H * 0.78;
+            for (let i = 0; i < groundPoops.length; i++) {
+                const gp = groundPoops[i];
+                gp.targetY = groundY - 1;
+                gp.emergeProgress = Math.min(1, gp.emergeProgress + dt * 4.8);
+
+                if (!gp.landed) {
+                    gp.x += gp.vx;
+                    gp.vy += 0.38;
+                    gp.y += gp.vy;
+                    gp.rotation += gp.vRot;
+                    if (gp.y >= gp.targetY) {
+                        gp.y = gp.targetY;
+                        gp.vy = 0;
+                        gp.vx = 0;
+                        gp.rotation = 0;
+                        gp.landed = true;
+                    }
+                } else {
+                    gp.wobbleTime += dt;
+                }
+
+                ctx.save();
+                ctx.translate(gp.x, gp.y);
+
+                // Ground contact shadow grows smoothly as it approaches the ground
+                const heightRatio = Math.max(0, Math.min(1, 1 - (gp.targetY - gp.y) / 36));
+                ctx.fillStyle = `rgba(0, 0, 0, ${0.38 * heightRatio})`;
+                ctx.beginPath();
+                ctx.ellipse(0, gp.targetY - gp.y + 2, 14 * heightRatio, 4.2 * heightRatio, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.rotate(gp.rotation);
+
+                const impactDamp = gp.landed ? Math.exp(-gp.wobbleTime * 3.0) : 0;
+                const squishX = gp.landed
+                    ? 1 + Math.sin(gp.wobbleTime * 11) * impactDamp * 0.24
+                    : 0.75 + gp.emergeProgress * 0.2;
+                const squishY = gp.landed
+                    ? 1 - Math.sin(gp.wobbleTime * 11) * impactDamp * 0.24
+                    : 0.8 + gp.emergeProgress * 0.32;
+                ctx.scale(squishX, squishY);
+
+                // Realistic multi-tiered shaded cartoon swirl
+                const drawTier = (cx, cy, rx, ry, baseCol, hiCol) => {
+                    ctx.fillStyle = baseCol;
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = hiCol;
+                    ctx.beginPath();
+                    ctx.ellipse(cx - rx * 0.25, cy - ry * 0.25, rx * 0.45, ry * 0.35, -0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                };
+
+                // Bottom, middle, and top tiers
+                drawTier(0, -4, 13.5, 5.5, '#5c3317', '#7c4722');
+                drawTier(0, -10.5, 10.2, 4.8, '#6b3e1e', '#8c542b');
+                drawTier(0, -16.5, 6.8, 3.8, '#784623', '#9c6035');
+
+                // Classic curled top tip
+                ctx.fillStyle = '#784623';
+                ctx.beginPath();
+                ctx.moveTo(-3.2, -18.5);
+                ctx.quadraticCurveTo(0, -26.5, 4.5, -23.5);
+                ctx.quadraticCurveTo(1.5, -20.5, 3.2, -18.5);
+                ctx.closePath();
+                ctx.fill();
+
+                // Rising wavy heat/stink lines after landing
+                if (gp.landed) {
+                    ctx.strokeStyle = 'rgba(190, 242, 100, 0.55)';
+                    ctx.lineWidth = 1.6;
+                    ctx.lineCap = 'round';
+                    for (let w = -1; w <= 1; w += 2) {
+                        const waveShift = Math.sin(gp.wobbleTime * 4 + w) * 2.5;
+                        ctx.beginPath();
+                        ctx.moveTo(w * 5, -28);
+                        ctx.quadraticCurveTo(w * 5 + waveShift, -34, w * 5 - waveShift * 0.5, -40);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.restore();
+            }
+        }
+
+        function drawCanvasScene(state, dt) {
+            drawBackground(state);
+            drawAmbientAtmosphere(dt, state);
+            drawGroundPoops(dt);
+
+            const groundY = H * 0.78;
+            const boyX = W * charRig.boyXRatio;
+            const girlX = W * charRig.girlXRatio;
+            const isHugging = charRig.hugProgress > 0.45;
+            const leanOffset = charRig.hugProgress * 6;
+            const headTilt = charRig.hugProgress * 0.14;
+            const boyMouthMoving = isVoiceSpeaking && state.activeSpeaker === 'boy';
+            const girlMouthMoving = isVoiceSpeaking && state.activeSpeaker === 'girl';
+
+            // Background wrapping arms when hugging
+            if (isHugging) {
+                ctx.save();
+                ctx.lineCap = "round";
+                ctx.strokeStyle = "#e8b4a8";
+                ctx.lineWidth = 6.5;
+                ctx.beginPath();
+                ctx.moveTo(boyX + leanOffset + 8, groundY - 50);
+                ctx.quadraticCurveTo((boyX + girlX) * 0.5 + 8, groundY - 46, girlX - leanOffset + 8, groundY - 48);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            drawBoy(boyX + leanOffset, groundY, {
+                time: state.time,
+                activeSpeaker: state.activeSpeaker,
+                isMouthMoving: boyMouthMoving,
+                kneel: charRig.boyKneel,
+                hug: charRig.hugProgress,
+                headTilt: headTilt,
+                walkSpeed: state.boyWalkSpeed,
+                walkCycle: charRig.walkCycleBoy,
+                warmth: charRig.warmth
+            });
+
+            drawGirl(girlX - leanOffset, groundY, {
+                time: state.time,
+                activeSpeaker: state.activeSpeaker,
+                isMouthMoving: girlMouthMoving,
+                hug: charRig.hugProgress,
+                headTilt: -headTilt * 1.15,
+                walkSpeed: state.girlWalkSpeed,
+                walkCycle: charRig.walkCycleGirl,
+                warmth: charRig.warmth
+            });
+
+            // Front embracing arms & hands layered over torsos for a genuine close hug
+            if (isHugging) {
+                ctx.save();
+                ctx.lineCap = "round";
+                // Boy's foreground arm wrapping securely across Girl's back
+                ctx.strokeStyle = "#f5d0c5";
+                ctx.lineWidth = 7.2;
+                ctx.beginPath();
+                ctx.moveTo(boyX + leanOffset - 6, groundY - 50);
+                ctx.quadraticCurveTo((boyX + girlX) * 0.5 + 4, groundY - 38, girlX - leanOffset + 11, groundY - 43);
+                ctx.stroke();
+
+                // Boy's hand resting gently on Girl's back
+                ctx.fillStyle = "#f5d0c5";
+                ctx.beginPath();
+                ctx.ellipse(girlX - leanOffset + 12, groundY - 43, 4.5, 3.4, 0.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Girl's foreground arm wrapping tenderly around Boy's upper back/shoulder
+                ctx.strokeStyle = "#f5d0c5";
+                ctx.lineWidth = 6.6;
+                ctx.beginPath();
+                ctx.moveTo(girlX - leanOffset + 6, groundY - 51);
+                ctx.quadraticCurveTo((boyX + girlX) * 0.5 - 2, groundY - 55, boyX + leanOffset - 11, groundY - 51);
+                ctx.stroke();
+
+                // Girl's hand resting on Boy's shoulder
+                ctx.fillStyle = "#f5d0c5";
+                ctx.beginPath();
+                ctx.ellipse(boyX + leanOffset - 12, groundY - 51, 4.2, 3.2, -0.25, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            drawFloatingTag("Babiya", boyX + leanOffset * 0.5, groundY - 108 + charRig.boyKneel * 10, "#2563eb", "#93c5fd", state.time);
+            drawFloatingTag("Momiya", girlX - leanOffset * 0.5, groundY - 108, "#e11d48", "#fda4af", state.time);
+
+            drawParticles();
+        }
+
+        let lastLoopTime = performance.now();
+
+        function animationLoop(now) {
+            const dt = Math.min((now - lastLoopTime) / 1000, 0.05);
+            lastLoopTime = now;
+            const t = now * 0.001;
+
+            // Target positions & poses per dialogue beat for realistic walking and body movement
+            let targetBoyX = 0.26;
+            let targetGirlX = 0.74;
+            let targetBoyKneel = 0;
+            let targetHug = 0;
+            let targetWarmth = 0;
+
+            if (currentStepIndex === 0) {
+                targetBoyX = 0.37;
+                targetGirlX = 0.68;
+                targetBoyKneel = 0.25;
+            } else if (currentStepIndex === 1) {
+                targetBoyX = 0.37;
+                targetGirlX = 0.62;
+                targetBoyKneel = 0.4;
+            } else if (currentStepIndex === 2) {
+                targetBoyX = 0.41;
+                targetGirlX = 0.61;
+                targetBoyKneel = 1.0;
+            } else if (currentStepIndex === 3) {
+                targetBoyX = 0.43;
+                targetGirlX = 0.55;
+                targetBoyKneel = 0.45;
+                targetWarmth = 0.65;
+            } else if (currentStepIndex === 4) {
+                targetBoyX = 0.478;
+                targetGirlX = 0.522;
+                targetBoyKneel = 0;
+                targetHug = 1.0;
+                targetWarmth = 1.0;
+            }
+
+            const prevBoyX = charRig.boyXRatio;
+            const prevGirlX = charRig.girlXRatio;
+
+            charRig.boyXRatio = lerp(charRig.boyXRatio, targetBoyX, dt * 2.6);
+            charRig.girlXRatio = lerp(charRig.girlXRatio, targetGirlX, dt * 2.6);
+            charRig.boyKneel = lerp(charRig.boyKneel, targetBoyKneel, dt * 3.2);
+            charRig.hugProgress = lerp(charRig.hugProgress, targetHug, dt * 3.0);
+            charRig.warmth = lerp(charRig.warmth, targetWarmth, dt * 2.2);
+
+            const boyDelta = Math.abs(charRig.boyXRatio - prevBoyX) / Math.max(dt, 0.001);
+            const girlDelta = Math.abs(charRig.girlXRatio - prevGirlX) / Math.max(dt, 0.001);
+
+            const boyWalkSpeed = Math.min(1, boyDelta * 8);
+            const girlWalkSpeed = Math.min(1, girlDelta * 8);
+
+            if (boyWalkSpeed > 0.05) charRig.walkCycleBoy += dt * 11;
+            if (girlWalkSpeed > 0.05) charRig.walkCycleGirl += dt * 11;
+
+            drawCanvasScene({
+                time: t,
+                activeSpeaker,
+                boyWalkSpeed,
+                girlWalkSpeed,
+                warmth: charRig.warmth
+            }, dt);
+
+            requestAnimationFrame(animationLoop);
+        }
+
+        /**
+         * =========================================================================
+         * 6. PLAYBACK SEQUENCE CONTROLLER & EVENT LISTENERS
+         * =========================================================================
+         */
+        function stopSkit(completedNaturally = false) {
+            isPlayingSequence = false;
+            isVoiceSpeaking = false;
+            clearTimeout(fallbackTimer);
+            try {
+                window.speechSynthesis.cancel();
+            } catch (e) {}
+
+            playBtnIcon.textContent = completedNaturally ? '🔄' : '▶️';
+            playBtnText.textContent = completedNaturally ? 'Play Again' : 'Play Full Scene';
+            sceneCounter.textContent = completedNaturally ? 'Scene: Hugging Forever ❤️' : 'Scene: Stopped';
+            updateStatusBadge(completedNaturally ? 'Hugging Forever ❤️' : 'Ready to Play', false);
+
+            if (completedNaturally) {
+                // Keep currentStepIndex at 4 (finale) so Babiya and Momiya stay locked in their hug until Play Again is clicked
+                currentStepIndex = 4;
+                activeSpeaker = 'finale';
+                highlightActiveCard(4);
+            } else {
+                currentStepIndex = -1;
+                activeSpeaker = 'none';
+                groundPoops.length = 0;
+                highlightActiveCard(-1);
+                bubbleSpeakerBadge.textContent = 'Director Cue';
+                dialogueText.textContent = 'Press "Play Full Scene" to start the Bhojpuri skit!';
+                progressBar.style.width = '0%';
+                progressLabel.textContent = `0 / ${SKIT_LINES.length}`;
+            }
+        }
+
+        function playSequenceStep(index) {
+            if (!isPlayingSequence || index >= SKIT_LINES.length) {
+                stopSkit(true);
+                return;
+            }
+
+            if (index === 0) {
+                groundPoops.length = 0;
+            }
+
+            currentStepIndex = index;
+            const line = SKIT_LINES[index];
+            updateStageVisuals(line);
+            highlightActiveCard(index);
+
+            const pct = ((index + 1) / SKIT_LINES.length) * 100;
+            progressBar.style.width = `${pct}%`;
+            progressLabel.textContent = `${index + 1} / ${SKIT_LINES.length}`;
+
+            if (line.speaker === 'finale') {
+                updateStatusBadge('Finale Hug & FX!', true);
+                playCartoonFartSound();
+                spawnFartClouds();
+                speakLine(line, () => {
+                    if (!isPlayingSequence) return;
+                    setTimeout(() => stopSkit(true), 2200);
+                });
+            } else {
+                updateStatusBadge(`${line.name} Speaking...`, true);
+                speakLine(line, () => {
+                    if (!isPlayingSequence) return;
+                    setTimeout(() => playSequenceStep(index + 1), 350);
+                });
+            }
+        }
+
+        // Event Listeners
+        playSceneBtn.addEventListener('click', () => {
+            initAudioContext();
+            if (isPlayingSequence) {
+                stopSkit(false);
+                return;
+            }
+            isPlayingSequence = true;
+            playBtnIcon.textContent = '⏸️';
+            playBtnText.textContent = 'Stop Scene';
+            playSequenceStep(0);
+        });
+
+        stopSceneBtn.addEventListener('click', () => stopSkit(false));
+
+        testFartBtn.addEventListener('click', () => {
+            initAudioContext();
+            playCartoonFartSound();
+            spawnFartClouds();
+        });
+
+        storyCanvas.addEventListener('click', () => {
+            initAudioContext();
+            spawnFartClouds();
+        });
+
+        boyPitchSlider.addEventListener('input', (e) => {
+            boyPitchVal.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        girlPitchSlider.addEventListener('input', (e) => {
+            girlPitchVal.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        speechRateSlider.addEventListener('input', (e) => {
+            speechRateVal.textContent = `${parseFloat(e.target.value).toFixed(2)}x`;
+        });
+
+        resetVoicesBtn.addEventListener('click', () => {
+            boyPitchSlider.value = '0.78';
+            girlPitchSlider.value = '1.35';
+            speechRateSlider.value = '0.95';
+            boyPitchVal.textContent = '0.78';
+            girlPitchVal.textContent = '1.35';
+            speechRateVal.textContent = '0.95x';
+            loadVoices();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = function () {
+            resizeCanvas();
+            renderScriptCards();
+            loadVoices();
+            if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            requestAnimationFrame(animationLoop);
+        };
+    </script>
+
+    <!-- ADD-ON: Download Video + human Hindi voices. Existing code above is untouched. -->
+    <script>
+/* Offline Hindi formant synthesizer. Pure JS, no network, no browser API needed. */
+const OffTTS = (function () {
+    const SR = 22050;
+    const FR = 0.005;                 // frame length (s)
+    const FS = Math.round(SR * FR);   // samples per frame
+
+    const STOP = (place, voiced, asp) => ({ t: 'stop', place, voiced, asp });
+    const AFF = (voiced, asp) => ({ t: 'aff', place: 'pal', voiced, asp });
+    const NAS = place => ({ t: 'nas', place });
+    const CONS = {
+        'क': STOP('velar', 0, 0), 'ख': STOP('velar', 0, 1), 'ग': STOP('velar', 1, 0), 'घ': STOP('velar', 1, 1), 'ङ': NAS('velar'),
+        'च': AFF(0, 0), 'छ': AFF(0, 1), 'ज': AFF(1, 0), 'झ': AFF(1, 1), 'ञ': NAS('pal'),
+        'ट': STOP('ret', 0, 0), 'ठ': STOP('ret', 0, 1), 'ड': STOP('ret', 1, 0), 'ढ': STOP('ret', 1, 1), 'ण': NAS('ret'),
+        'त': STOP('den', 0, 0), 'थ': STOP('den', 0, 1), 'द': STOP('den', 1, 0), 'ध': STOP('den', 1, 1), 'न': NAS('den'),
+        'प': STOP('lab', 0, 0), 'फ': STOP('lab', 0, 1), 'ब': STOP('lab', 1, 0), 'भ': STOP('lab', 1, 1), 'म': NAS('lab'),
+        'य': { t: 'y' }, 'र': { t: 'r' }, 'ल': { t: 'l' }, 'व': { t: 'v' },
+        'श': { t: 'sh' }, 'ष': { t: 'sh' }, 'स': { t: 's' }, 'ह': { t: 'h' }
+    };
+    const NUKTA = { 'ड': { t: 'R' }, 'ढ': { t: 'R' }, 'फ': { t: 'f' }, 'ज': { t: 'z' } };
+    const MATRA = { 'ा': 'aa', 'ि': 'i', 'ी': 'ii', 'ु': 'u', 'ू': 'uu', 'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au', 'ृ': 'ri' };
+    const IVOW = { 'अ': 'a', 'आ': 'aa', 'इ': 'i', 'ई': 'ii', 'उ': 'u', 'ऊ': 'uu', 'ए': 'e', 'ऐ': 'ai', 'ओ': 'o', 'औ': 'au', 'ऋ': 'ri' };
+
+    const VOW = {
+        a: { f: [600, 1250, 2550], d: 72 }, aa: { f: [790, 1250, 2600], d: 150 },
+        i: { f: [340, 2150, 2900], d: 85 }, ii: { f: [290, 2300, 3100], d: 150 },
+        u: { f: [360, 900, 2400], d: 85 }, uu: { f: [310, 800, 2300], d: 150 },
+        e: { f: [450, 2000, 2750], d: 140 }, o: { f: [470, 900, 2500], d: 140 },
+        ai: { f: [700, 1650, 2550], g: [480, 1950, 2700], d: 175 },
+        au: { f: [700, 1050, 2500], g: [430, 850, 2400], d: 175 }
+    };
+    const LOCUS = { velar: [1800, 2300], pal: [2200, 2800], ret: [1500, 2000], den: [1700, 2700], lab: [900, 2300] };
+    const NASF2 = { velar: 1500, pal: 1900, ret: 1300, den: 1400, lab: 1000 };
+    const BURST = {
+        velar: { fc: 1900, bw: 1000, a: 0.9 }, pal: { fc: 3300, bw: 1500, a: 0.8 },
+        ret: { fc: 1700, bw: 1100, a: 0.75 }, den: { fc: 4200, bw: 2500, a: 0.7 }, lab: { fc: 1100, bw: 1400, a: 0.55 }
+    };
+
+    // ------------------------------------------------------------------ text -> words/tokens
+    function parse(text) {
+        text = String(text).normalize('NFD');
+        const chars = Array.from(text);
+        const words = [];
+        let cur = [];
+        const flush = p => {
+            if (cur.length) { words.push({ tok: cur, p: p || '' }); cur = []; }
+            else if (p && words.length) words[words.length - 1].p += p;
+        };
+        for (let i = 0; i < chars.length; i++) {
+            const ch = chars[i];
+            if (CONS[ch]) {
+                let c = CONS[ch];
+                if (chars[i + 1] === '\u093C') { i++; if (NUKTA[ch]) c = NUKTA[ch]; }
+                cur.push({ t: 'C', c });
+                const nx = chars[i + 1];
+                if (nx === '\u094D') { i++; }
+                else if (MATRA[nx]) { i++; cur.push({ t: 'V', v: MATRA[nx] }); }
+                else cur.push({ t: 'A' });
+            } else if (IVOW[ch]) cur.push({ t: 'V', v: IVOW[ch] });
+            else if (ch === 'ं' || ch === 'ँ') cur.push({ t: 'N' });
+            else if (ch === 'ः') cur.push({ t: 'C', c: CONS['ह'] });
+            else if (/\s/.test(ch)) flush();
+            else if (/[,;]/.test(ch)) flush(',');
+            else if (/[!?।.]/.test(ch)) flush(ch === '।' ? '.' : ch);
+        }
+        flush();
+        words.forEach(w => {
+            // expand vowel ri -> r + i
+            const out = [];
+            w.tok.forEach(t => {
+                if (t.t === 'V' && t.v === 'ri') { out.push({ t: 'C', c: CONS['र'] }); out.push({ t: 'V', v: 'i' }); }
+                else out.push(t);
+            });
+            // schwa deletion
+            const isVow = t => t && (t.t === 'V' || (t.t === 'A' && !t.del));
+            for (let i = 0; i < out.length; i++) {
+                if (out[i].t !== 'A') continue;
+                if (i === out.length - 1 || (out[i + 1] && out[i + 1].t === 'N' && i + 1 === out.length - 1 && false)) { out[i].del = true; continue; }
+                if (i >= 2 && out[i - 1].t === 'C' && isVow(out[i - 2]) && out[i + 1] && out[i + 1].t === 'C' && isVow(out[i + 2])) out[i].del = true;
+            }
+            w.tok = out.filter(t => !t.del);
+        });
+        return words;
+    }
+
+    // ------------------------------------------------------------------ words -> segments
+    function seg(o) {
+        return Object.assign({ d: 60, F: null, av: 0, ah: 0, af: 0, fc: 4000, fbw: 2000, pf: 1, nas: 0 }, o);
+    }
+    function buildSegments(words) {
+        const S = [];
+        const lastWord = words.length - 1;
+        words.forEach((w, wi) => {
+            let firstVowel = true;
+            const tok = w.tok;
+            let lastVowelIdx = -1;
+            for (let i = 0; i < tok.length; i++) {
+                const t = tok[i];
+                let ph = null;
+                if (t.t === 'V' || t.t === 'A') {
+                    const v = t.t === 'A' ? VOW.a : VOW[t.v];
+                    const base = { av: 1, pf: 1 };
+                    if (firstVowel) { base.pf = 1.1; firstVowel = false; }
+                    if (v.g) {
+                        S.push(seg(Object.assign({ d: v.d * 0.55, F: v.f }, base)));
+                        lastVowelIdx = S.length;
+                        S.push(seg(Object.assign({ d: v.d * 0.45, F: v.g }, base)));
+                        S[S.length - 1].vow = true; S[S.length - 2].vow = true;
+                    } else {
+                        S.push(seg(Object.assign({ d: v.d, F: v.f, vow: true }, base)));
+                        lastVowelIdx = S.length - 1;
+                    }
+                    continue;
+                }
+                if (t.t === 'N') {
+                    // nasalise: homorganic nasal before a consonant, soft murmur at the end
+                    let place = 'den';
+                    const nx = tok[i + 1];
+                    if (nx && nx.t === 'C' && nx.c.place) place = nx.c.place;
+                    const atEnd = !nx;
+                    S.push(seg({ d: atEnd ? 85 : 60, F: [260, NASF2[place], 2400], av: atEnd ? 0.4 : 0.55, nas: 1 }));
+                    continue;
+                }
+                if (t.t !== 'C') continue;
+                const c = t.c;
+                if (c.t === 'stop' || c.t === 'aff') {
+                    const L = LOCUS[c.place], B = BURST[c.place];
+                    S.push(seg({ d: c.voiced ? 55 : 62, F: [260, L[0], L[1]], av: c.voiced ? 0.16 : 0 }));
+                    if (c.t === 'aff') {
+                        S.push(seg({ d: 55, F: [300, 2300, 3000], av: c.voiced ? 0.25 : 0, af: B.a * 0.75, fc: 3600, fbw: 1800 }));
+                    } else {
+                        S.push(seg({ d: 13, F: [260, L[0], L[1]], av: c.voiced ? 0.2 : 0, af: B.a, fc: B.fc, fbw: B.bw }));
+                    }
+                    if (c.asp) S.push(seg({ d: 55, F: null, av: c.voiced ? 0.4 : 0, ah: 0.55 }));
+                    else S.push(seg({ d: c.voiced ? 6 : 16, F: null, av: c.voiced ? 0.5 : 0, ah: c.voiced ? 0 : 0.18 }));
+                } else if (c.t === 'nas') {
+                    S.push(seg({ d: 72, F: [260, NASF2[c.place], 2400], av: 0.55, nas: 1 }));
+                } else if (c.t === 'y') {
+                    S.push(seg({ d: 55, F: [300, 2200, 2900], av: 0.8 }));
+                } else if (c.t === 'v') {
+                    S.push(seg({ d: 55, F: [330, 850, 2300], av: 0.75 }));
+                } else if (c.t === 'l') {
+                    S.push(seg({ d: 65, F: [390, 1150, 2650], av: 0.8 }));
+                } else if (c.t === 'r') {
+                    S.push(seg({ d: 22, F: [420, 1350, 1850], av: 0.75 }));
+                    S.push(seg({ d: 10, F: [420, 1350, 1850], av: 0.12 }));
+                    S.push(seg({ d: 16, F: [420, 1350, 1850], av: 0.75 }));
+                } else if (c.t === 'R') {
+                    S.push(seg({ d: 12, F: [400, 1400, 1800], av: 0.15 }));
+                    S.push(seg({ d: 22, F: [400, 1400, 1800], av: 0.7 }));
+                } else if (c.t === 's') {
+                    S.push(seg({ d: 115, F: null, af: 0.8, fc: 6500, fbw: 2800 }));
+                } else if (c.t === 'sh') {
+                    S.push(seg({ d: 115, F: [300, 1900, 2600], af: 0.8, fc: 3300, fbw: 1700 }));
+                } else if (c.t === 'z') {
+                    S.push(seg({ d: 100, F: [300, 1700, 2600], av: 0.4, af: 0.6, fc: 6000, fbw: 2800 }));
+                } else if (c.t === 'f') {
+                    S.push(seg({ d: 90, F: null, af: 0.35, fc: 4500, fbw: 4000 }));
+                } else if (c.t === 'h') {
+                    S.push(seg({ d: 80, F: null, av: 0.2, ah: 0.6 }));
+                }
+            }
+            // final-word / phrase intonation on the last vowel
+            if (lastVowelIdx >= 0) {
+                const s = S[lastVowelIdx];
+                if (w.p.includes('!')) s.pf = 1.12; else if (w.p.includes('?')) s.pf = 1.28;
+                else if (w.p.includes('.')) s.pf = 0.88; else if (w.p.includes(',')) s.pf = 1.08;
+                else if (wi === lastWord) s.pf = 0.9;
+                if (w.p) s.vow = true;
+            }
+            // pauses
+            let gap = 38;
+            if (w.p.includes(',')) gap = 230;
+            if (/[.!?]/.test(w.p)) gap = 320;
+            S.push(seg({ d: gap, F: null, av: 0 }));
+        });
+        return S;
+    }
+
+    // ------------------------------------------------------------------ rendering
+    function reso(f, bw) {
+        const C = -Math.exp(-2 * Math.PI * bw / SR);
+        const B = 2 * Math.exp(-Math.PI * bw / SR) * Math.cos(2 * Math.PI * f / SR);
+        return [1 - B - C, B, C];
+    }
+
+    function render(segs, o) {
+        const f0base = o.f0, fs = o.fscale, rate = o.rate;
+        // expand to frames
+        const fr = [];
+        const dflt = [600, 1300, 2500];
+        // resolve null formants by looking ahead
+        const resolved = segs.map(s => s.F);
+        for (let i = segs.length - 1; i >= 0; i--) {
+            if (!resolved[i]) resolved[i] = i + 1 < segs.length && resolved[i + 1] ? resolved[i + 1] : null;
+        }
+        let lastF = dflt;
+        for (let i = 0; i < segs.length; i++) { if (!resolved[i]) resolved[i] = lastF; else lastF = resolved[i]; }
+        segs.forEach((s, i) => {
+            const n = Math.max(1, Math.round((s.d / rate) / (FR * 1000)));
+            for (let k = 0; k < n; k++) fr.push({ s, F: resolved[i], k, n });
+        });
+        const total = fr.length * FS + Math.round(SR * 0.12);
+        const out = new Float32Array(total);
+
+        // smoothed parameters
+        let F1 = dflt[0], F2 = dflt[1], F3 = dflt[2], AV = 0, PF = 1;
+        const af = a => 1 - Math.exp(-FR / a);
+        const aF = af(0.016), aV = af(0.006), aP = af(0.045);
+        let phase = 0, gPrev = 0, rnd = 12345;
+        const noise = () => { rnd = (rnd * 1664525 + 1013904223) >>> 0; return rnd / 2147483648 - 1; };
+        // resonator states
+        const st = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]];
+        let fy1 = 0, fy2 = 0, fx1 = 0;   // frication
+        let jit = 0;
+        const T = fr.length * FR;
+        let pos = 0;
+        let lpPrev = 0;
+        for (let q = 0; q < fr.length; q++) {
+            const p = fr[q], s = p.s;
+            F1 += (p.F[0] * fs - F1) * aF; F2 += (p.F[1] * fs - F2) * aF; F3 += (p.F[2] * fs - F3) * aF;
+            AV += (s.av - AV) * aV;
+            PF += (s.pf - PF) * aP;
+            const bw1 = s.nas ? 170 : 75, bw2 = s.nas ? 200 : 100, bw3 = 140;
+            const co = [reso(Math.min(F1, 1100 * fs), bw1), reso(F2, bw2), reso(Math.min(F3, 3800), bw3), reso(3500, 220), reso(4500, 260)];
+            const fco = s.af > 0 ? reso(Math.min(s.fc, 9500), s.fbw) : null;
+            const tNow = q * FR;
+            const decl = 1 - 0.16 * (tNow / T);
+            for (let n = 0; n < FS; n++) {
+                const t = pos / SR;
+                if ((pos & 63) === 0) jit = (noise() * 0.006);
+                const f0 = f0base * decl * PF * (1 + 0.012 * Math.sin(2 * Math.PI * 5.2 * t) + jit);
+                phase += f0 / SR; if (phase >= 1) phase -= 1;
+                // glottal flow
+                let g;
+                const tp = 0.55, tc = 0.16;
+                if (phase < tp) g = 0.5 * (1 - Math.cos(Math.PI * phase / tp));
+                else if (phase < tp + tc) g = Math.cos(0.5 * Math.PI * (phase - tp) / tc);
+                else g = 0;
+                const du = (g - gPrev) * (SR / f0) * 0.16; gPrev = g;
+                const nz = noise();
+                let src = AV * (du + 0.03 * nz) + s.ah * 0.35 * nz;
+                // cascade
+                let y = src;
+                for (let r = 0; r < 5; r++) {
+                    const c = co[r], z = st[r];
+                    const yn = c[0] * y + c[1] * z[0] + c[2] * z[1];
+                    z[1] = z[0]; z[0] = yn; y = yn;
+                }
+                let o2 = y * 0.55;
+                if (fco) {
+                    const x = noise();
+                    const yn = fco[0] * x + fco[1] * fy1 + fco[2] * fy2; fy2 = fy1; fy1 = yn;
+                    const hp = yn - fx1 * 0.9; fx1 = yn;
+                    o2 += hp * s.af * 0.55;
+                } else { fy1 *= 0.5; fy2 *= 0.5; }
+                // gentle lowpass to remove harshness
+                lpPrev += (o2 - lpPrev) * 0.82; o2 = lpPrev;
+                out[pos++] = o2;
+            }
+        }
+        // normalise + soft limit + fades
+        let pk = 0; for (let i = 0; i < out.length; i++) { const a = Math.abs(out[i]); if (a > pk) pk = a; }
+        const gain = pk > 0 ? 0.8 / pk : 1;
+        for (let i = 0; i < out.length; i++) out[i] = Math.tanh(out[i] * gain * 1.2) * 0.9;
+        const fade = Math.round(SR * 0.01);
+        for (let i = 0; i < fade && i < out.length; i++) { out[i] *= i / fade; out[out.length - 1 - i] *= i / fade; }
+        return out;
+    }
+
+    // text: Devanagari. opts: { f0 (Hz), girl (bool), rate (0.5..2) }
+    function synth(text, opts) {
+        opts = opts || {};
+        const words = parse(text);
+        const segs = buildSegments(words);
+        const samples = render(segs, {
+            f0: opts.f0 || 120, fscale: opts.girl ? 1.17 : 1.0, rate: opts.rate || 1
+        });
+        return { samples, sampleRate: SR };
+    }
+    return { synth, parse, buildSegments, SR };
+})();
+
+
+    </script>
+    <script>
+(function () {
+    const $ = id => document.getElementById(id);
+    const dlBtn = $('downloadVideoBtn'), dlIcon = $('dlBtnIcon'), dlText = $('dlBtnText');
+    const provSel = $('ttsProvider'), keyIn = $('azureKey'), regionIn = $('azureRegion'), regionWrap = $('regionWrap');
+    const useGenCb = $('useGeneratedVoice');
+    const enableCb = $('neuralEnable'), testBtn = $('neuralTestBtn'), msgEl = $('neuralMsg');
+    const neuralBox = $('neuralBox'), helpEl = $('neuralHelp');
+
+    const AZ_BOY = 'hi-IN-MadhurNeural', AZ_GIRL = 'hi-IN-SwaraNeural';
+    const EL_BOY = 'pNInz6obpgDQGcFmaJgB', EL_GIRL = 'EXAVITQu4vr4xnSDxMaL';
+
+    // ---------- saved settings ----------
+    const store = {
+        get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    };
+    const keyName = () => (provSel.value === 'eleven' ? 'elKey' : 'azKey');
+    function refreshProviderUI() {
+        const eleven = provSel.value === 'eleven';
+        regionWrap.style.display = eleven ? 'none' : '';
+        keyIn.value = store.get(keyName()) || '';
+        helpEl.textContent = eleven
+            ? 'Free: sign up at elevenlabs.io (email only), open Profile > API Keys, create a key and paste it here. Babiya and Momiya get two different natural voices. The key stays in this browser.'
+            : 'Paste a Speech key from an Azure Speech resource (Madhur = Babiya, Swara = Momiya). The key stays in this browser.';
+    }
+    provSel.value = store.get('ttsProv') || 'eleven';
+    regionIn.value = store.get('azRegion') || 'centralindia';
+    refreshProviderUI();
+    enableCb.checked = store.get('azOn') === '1' && keyIn.value.trim().length > 10;
+    if (keyIn.value) neuralBox.open = true;
+    function saveSettings() {
+        store.set('ttsProv', provSel.value);
+        store.set(keyName(), keyIn.value.trim());
+        store.set('azRegion', regionIn.value.trim());
+        store.set('azOn', enableCb.checked ? '1' : '0');
+    }
+    provSel.addEventListener('change', () => {
+        store.set('ttsProv', provSel.value);
+        refreshProviderUI();
+        enableCb.checked = keyIn.value.trim().length > 10;
+        saveSettings();
+    });
+    keyIn.addEventListener('input', () => {
+        if (keyIn.value.trim().length > 10 && !enableCb.checked) enableCb.checked = true;
+        saveSettings();
+    });
+    useGenCb.checked = store.get('useGen') === '1';
+    useGenCb.addEventListener('change', () => store.set('useGen', useGenCb.checked ? '1' : '0'));
+    [regionIn, enableCb].forEach(el => el.addEventListener('change', saveSettings));
+    const say = (t, bad) => { msgEl.textContent = t; msgEl.style.color = bad ? '#fda4af' : '#94a3b8'; };
+    const neuralOn = () => enableCb.checked && keyIn.value.trim().length > 10;
+
+    // ---------- recording tap: copy anything the page plays to audioCtx.destination into the recorder ----------
+    const rec = { dest: null };
+    const origConnect = AudioNode.prototype.connect;
+    AudioNode.prototype.connect = function (target) {
+        const r = origConnect.apply(this, arguments);
+        try {
+            if (rec.dest && typeof audioCtx !== 'undefined' && audioCtx && target === audioCtx.destination) {
+                origConnect.call(this, rec.dest);
+                if (rec.an) origConnect.call(this, rec.an);
+            }
+        } catch (e) {}
+        return r;
+    };
+
+    // ---------- voice engines (all return decoded audio so it can be recorded exactly) ----------
+    const cache = new Map();
+    let currentSource = null;
+    let forcedProvider = null; // 'free' while recording with the no-signup voice
+    const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const decode = ab => new Promise((res, rej) => audioCtx.decodeAudioData(ab, res, rej));
+    const isBoy = line => line.speaker === 'boy';
+    const lineText = line => line.speechHi || normalizeTextForSpeech(line.text);
+
+    async function timedFetch(url, opts, ms) {
+        const ctl = new AbortController();
+        const t = setTimeout(() => ctl.abort(), ms || 20000);
+        try { return await fetch(url, Object.assign({ signal: ctl.signal }, opts)); }
+        finally { clearTimeout(t); }
+    }
+
+    async function fetchAzure(line) {
+        const r = Math.round((parseFloat(speechRateSlider.value) - 1) * 100);
+        const rate = (r >= 0 ? '+' : '') + r + '%';
+        const voice = isBoy(line) ? AZ_BOY : AZ_GIRL;
+        const ssml = `<speak version="1.0" xml:lang="hi-IN" xmlns="http://www.w3.org/2001/10/synthesis">` +
+            `<voice name="${voice}"><prosody rate="${rate}">${esc(lineText(line))}</prosody></voice></speak>`;
+        const region = (regionIn.value.trim() || 'centralindia').toLowerCase();
+        const resp = await timedFetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+            method: 'POST',
+            headers: {
+                'Ocp-Apim-Subscription-Key': keyIn.value.trim(),
+                'Content-Type': 'application/ssml+xml',
+                'X-Microsoft-OutputFormat': 'audio-24khz-96kbitrate-mono-mp3'
+            },
+            body: ssml
+        });
+        if (!resp.ok) throw new Error('Azure replied ' + resp.status + (resp.status === 401 ? ' (check key / region)' : ''));
+        return resp.arrayBuffer();
+    }
+
+    async function fetchEleven(line) {
+        const voice = isBoy(line) ? EL_BOY : EL_GIRL;
+        const speed = Math.min(1.2, Math.max(0.7, parseFloat(speechRateSlider.value) || 1));
+        const resp = await timedFetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`, {
+            method: 'POST',
+            headers: { 'xi-api-key': keyIn.value.trim(), 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+            body: JSON.stringify({
+                text: lineText(line),
+                model_id: 'eleven_multilingual_v2',
+                voice_settings: { stability: 0.42, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true, speed }
+            })
+        });
+        if (!resp.ok) throw new Error('ElevenLabs replied ' + resp.status + (resp.status === 401 ? ' (check your key)' : ''));
+        return resp.arrayBuffer();
+    }
+
+    // No-signup fallback: a free public Hindi/Indian-English voice; the boy line is played slower/deeper
+    async function fetchFree(line) {
+        const url = 'https://api.streamelements.com/kappa/v2/speech?voice=Aditi&text=' + encodeURIComponent(lineText(line));
+        const resp = await timedFetch(url, {}, 12000);
+        if (!resp.ok) throw new Error('free voice replied ' + resp.status);
+        return resp.arrayBuffer();
+    }
+
+    let onlineDown = false;   // once the network voices fail, skip them for the rest of the session
+    function offlineBuffer(line) {
+        initAudioContext();
+        const girl = !isBoy(line);
+        const pitch = parseFloat((girl ? girlPitchSlider : boyPitchSlider).value) || 1;
+        const r = OffTTS.synth(lineText(line), {
+            f0: (girl ? 150 : 125) * pitch, girl, rate: parseFloat(speechRateSlider.value) || 1
+        });
+        const b = audioCtx.createBuffer(1, r.samples.length, r.sampleRate);
+        b.copyToChannel(r.samples, 0);
+        b.__src = 'offline'; b.__rate = 1;
+        return b;
+    }
+    // Never fails: chosen voice -> free online voice -> built-in offline voice
+    const bestCache = new Map();
+    async function getBestBuffer(line, provider) {
+        const bk = provider + '|' + (isBoy(line) ? 'b' : 'g') + '|' + speechRateSlider.value + '|' + boyPitchSlider.value + '|' + girlPitchSlider.value + '|' + lineText(line);
+        if (bestCache.has(bk)) return bestCache.get(bk);
+        const b = await getBestBufferRaw(line, provider);
+        bestCache.set(bk, b);
+        return b;
+    }
+    async function getBestBufferRaw(line, provider) {
+        const chain = [];
+        if (provider && provider !== 'offline') chain.push(provider);
+        if (provider !== 'free' && provider !== 'offline') chain.push('free');
+        chain.push('offline');
+        for (const p of chain) {
+            if (onlineDown && p !== 'offline' && p === 'free') continue;
+            try {
+                const b = await getBuffer(line, p);
+                let pk = 0; const d = b.getChannelData(0);
+                for (let i = 0; i < d.length; i += 7) { const a = Math.abs(d[i]); if (a > pk) pk = a; }
+                if (pk > 0.02) { b.__src = p; return b; }
+            } catch (e) { if (p === 'free') onlineDown = true; }
+        }
+        return offlineBuffer(line);
+    }
+    const setCache = new Map();
+    function prepareAll(prov, progress) {
+        const k = [prov, speechRateSlider.value, boyPitchSlider.value, girlPitchSlider.value].join('|');
+        if (setCache.has(k)) return setCache.get(k);
+        const pr = (async () => {
+            let bufs = [];
+            for (let i = 0; i < SKIT_LINES.length; i++) {
+                if (progress) progress(i);
+                bufs.push(await getBestBuffer(SKIT_LINES[i], prov));
+            }
+            // one voice engine for the whole skit: if engines got mixed, use the built-in voice for all lines
+            if (new Set(bufs.map(b => b.__src)).size > 1) bufs = SKIT_LINES.map(l => offlineBuffer(l));
+            return bufs;
+        })();
+        setCache.set(k, pr);
+        pr.catch(() => setCache.delete(k));
+        return pr;
+    }
+    const liveProvider = () => (neuralOn() ? provSel.value : 'free');
+    async function getBuffer(line, provider) {
+        initAudioContext();
+        const prov = provider || provSel.value;
+        if (prov === 'offline') return offlineBuffer(line);
+        const ck = prov + '|' + (isBoy(line) ? 'b' : 'g') + '|' + speechRateSlider.value + '|' + lineText(line);
+        if (cache.has(ck)) return cache.get(ck);
+        const ab = prov === 'azure' ? await fetchAzure(line) : prov === 'free' ? await fetchFree(line) : await fetchEleven(line);
+        const buf = await decode(ab);
+        buf.__rate = (prov === 'free' && isBoy(line)) ? 0.82 : 1;
+        cache.set(ck, buf);
+        return buf;
+    }
+
+    function stopNeural() {
+        if (currentSource) {
+            try { currentSource.onended = null; currentSource.stop(); } catch (e) {}
+            currentSource = null;
+        }
+    }
+    function playBuffer(buf, onDone, rate) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        if (rate && rate !== 1) src.playbackRate.value = rate;
+        const g = audioCtx.createGain();
+        g.gain.value = 1.0;
+        src.connect(g);
+        g.connect(audioCtx.destination);
+        src.onended = () => { currentSource = null; onDone && onDone(); };
+        currentSource = src;
+        src.start();
+    }
+
+    // Wrap the existing functions (the originals remain the fallback)
+    const origSpeak = speakLine;
+    speakLine = function (line, cb) {
+        const prov = forcedProvider || (neuralOn() ? provSel.value : (useGenCb.checked ? 'free' : null));
+        if (!prov) return origSpeak(line, cb);
+        initAudioContext();
+        clearTimeout(fallbackTimer);
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+        prepareAll(prov).then(bufs => {
+            const idx = SKIT_LINES.indexOf(line);
+            return idx >= 0 ? bufs[idx] : getBestBuffer(line, prov);
+        }).then(buf => {
+            if (!isPlayingSequence) return;
+            stopNeural();
+            playBuffer(buf, cb, buf.__rate || 1);
+        }).catch(err => {
+            say('Human voice failed: ' + err.message + '. Using the browser voice for this line.', true);
+            if (isPlayingSequence) origSpeak(line, cb);
+        });
+    };
+    const origStop = stopSkit;
+    stopSkit = function (done) { stopNeural(); return origStop(done); };
+
+    testBtn.addEventListener('click', async () => {
+        if (keyIn.value.trim().length < 10) { say('Paste your API key first.', true); return; }
+        saveSettings();
+        say('Generating voices...');
+        try {
+            initAudioContext();
+            const a = await getBuffer(SKIT_LINES[0]);
+            const b = await getBuffer(SKIT_LINES[1]);
+            say('Playing Babiya, then Momiya...');
+            stopNeural();
+            playBuffer(a, () => playBuffer(b, () => say('Works! Now press Download Video.')));
+            if (!enableCb.checked) { enableCb.checked = true; saveSettings(); }
+        } catch (e) {
+            say('Failed: ' + e.message, true);
+        }
+    });
+
+    // ---------- UI helpers ----------
+    function setBtn(icon, text, disabled) {
+        dlIcon.textContent = icon; dlText.textContent = text;
+        dlBtn.disabled = !!disabled;
+        dlBtn.style.opacity = disabled ? '0.75' : '1';
+        dlBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+    }
+    const footer = dlBtn.parentElement.parentElement;
+    const panel = document.createElement('div');
+    panel.className = 'w-full hidden';
+    panel.innerHTML =
+        '<p id="dlStatus" class="text-[12px] text-slate-300 mb-2"></p>' +
+        '<div id="dlResult" class="hidden rounded-xl border border-emerald-500/30 bg-slate-950/70 p-3">' +
+        '<video id="dlVideo" controls playsinline class="w-full max-h-72 rounded-lg bg-black"></video>' +
+        '<div class="flex flex-wrap gap-2 mt-2">' +
+        '<button id="dlFull" type="button" class="btn-soft px-4 py-2 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white font-semibold text-sm">⛶ Full screen</button>' +
+        '<a id="dlSave" class="btn-soft px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm">💾 Save video</a>' +
+        '<button id="dlShare" class="hidden btn-soft px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-semibold text-sm">📲 Share / Save to gallery</button>' +
+        '<a id="dlOpen" target="_blank" rel="noopener" class="btn-soft px-4 py-2 rounded-xl glass-panel text-slate-200 font-semibold text-sm">Open in new tab</a>' +
+        '</div>' +
+        '<p class="text-[11px] text-slate-400 mt-2">If Save does nothing, long-press / right-click the video and choose Save video, or open this page directly in Chrome.</p>' +
+        '</div>';
+    footer.appendChild(panel);
+    panel.querySelector('#dlFull').addEventListener('click', () => {
+        const v = panel.querySelector('#dlVideo');
+        try {
+            if (v.requestFullscreen) v.requestFullscreen();
+            else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+            else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();   // iPhone Safari
+        } catch (e) {}
+    });
+    const dlStatus = panel.querySelector('#dlStatus');
+    function status(t, bad) {
+        panel.classList.remove('hidden');
+        dlStatus.textContent = t;
+        dlStatus.style.color = bad ? '#fda4af' : '#cbd5e1';
+    }
+    let lastUrl = null;
+    function showResult(blob, ext) {
+        if (lastUrl) { try { URL.revokeObjectURL(lastUrl); } catch (e) {} }
+        lastUrl = URL.createObjectURL(blob);
+        const name = 'Bhojpuri_Skit_Babiya_Momiya.' + ext;
+        panel.classList.remove('hidden');
+        panel.querySelector('#dlResult').classList.remove('hidden');
+        panel.querySelector('#dlVideo').src = lastUrl;
+        const save = panel.querySelector('#dlSave');
+        save.href = lastUrl; save.download = name;
+        panel.querySelector('#dlOpen').href = lastUrl;
+        const shareBtn = panel.querySelector('#dlShare');
+        try {
+            const file = new File([blob], name, { type: blob.type || 'video/mp4' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                shareBtn.classList.remove('hidden');
+                shareBtn.onclick = () => navigator.share({ files: [file], title: 'Bhojpuri Skit' }).catch(() => {});
+            }
+        } catch (e) {}
+        try {
+            const a = document.createElement('a');
+            a.href = lastUrl; a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+        } catch (e) {}
+        status('Video ready (' + (blob.size / 1048576).toFixed(1) + ' MB). It should download automatically; otherwise use the Save button below.');
+    }
+    function pickMime() {
+        const list = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4',
+            'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+        return list.find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
+    }
+    // Records only the stage canvas (background + characters), nothing else
+    function drawFrame(rc, rctx) {
+        rctx.setTransform(1, 0, 0, 1, 0, 0);
+        const sw = storyCanvas.width || rc.width, sh = storyCanvas.height || rc.height;
+        const k = Math.min(rc.width / sw, rc.height / sh);
+        const dw = sw * k, dh = sh * k;
+        if (Math.abs(dw - rc.width) > 1 || Math.abs(dh - rc.height) > 1) {
+            rctx.fillStyle = '#020617';
+            rctx.fillRect(0, 0, rc.width, rc.height);
+        }
+        rctx.drawImage(storyCanvas, (rc.width - dw) / 2, (rc.height - dh) / 2, dw, dh);
+    }
+
+    let busy = false;
+    function reset() { busy = false; setBtn('⬇️', 'Download Video', false); }
+
+    // Shared recorder. monitor=true measures the captured audio so a silent recording can be reported.
+    function record(audioTracks, onCleanup, monitor, endNote, onSilent) {
+        window.__recLock = true; storyCanvas.classList.add('rec-lock');
+        const unlock = () => { window.__recLock = false; storyCanvas.classList.remove('rec-lock'); try { resizeCanvas(); } catch (e) {} };
+        const _oc = onCleanup; onCleanup = () => { unlock(); _oc(); };
+        const rc = document.createElement('canvas');
+        rc.width = Math.max(2, storyCanvas.width - (storyCanvas.width % 2));
+        rc.height = Math.max(2, storyCanvas.height - (storyCanvas.height % 2));
+        const rctx = rc.getContext('2d');
+        drawFrame(rc, rctx);
+        const mixed = new MediaStream([...rc.captureStream(30).getVideoTracks(), ...audioTracks]);
+        const mime = pickMime();
+        let recorder;
+        try {
+            recorder = new MediaRecorder(mixed, mime ? { mimeType: mime, videoBitsPerSecond: 4000000 } : undefined);
+        } catch (e) {
+            onCleanup(); reset();
+            status('This browser could not start the recorder. Please open the page in Chrome.', true);
+            return;
+        }
+        const chunks = []; let discard = false, drawing = true, wd = null, meter = null, peak = 0;
+        recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+
+        if (monitor) {
+            try {
+                let an;
+                if (rec.an) { an = rec.an; }
+                else {
+                    const ms = audioCtx.createMediaStreamSource(new MediaStream(audioTracks));
+                    an = audioCtx.createAnalyser(); an.fftSize = 2048;
+                    const mute = audioCtx.createGain(); mute.gain.value = 0;
+                    ms.connect(an); an.connect(mute); mute.connect(audioCtx.destination);
+                }
+                const data = new Float32Array(an.fftSize);
+                meter = setInterval(() => {
+                    an.getFloatTimeDomainData(data);
+                    for (let i = 0; i < data.length; i++) { const v = Math.abs(data[i]); if (v > peak) peak = v; }
+                }, 80);
+            } catch (e) { monitor = false; }
+        }
+
+        const observer = new MutationObserver(() => {
+            const label = playBtnText.textContent.trim();
+            if (label === 'Play Again') setTimeout(() => finish(false), 700);
+            else if (label === 'Play Full Scene') finish(true);
+        });
+        function finish(cancel) {
+            if (recorder.state === 'inactive') return;
+            discard = !!cancel;
+            setBtn('⏳', 'Saving video...', true);
+            try { recorder.stop(); } catch (e) {}
+        }
+        recorder.onstop = () => {
+            clearTimeout(wd); clearInterval(meter);
+            drawing = false; observer.disconnect(); onCleanup(); busy = false;
+            if (!discard && !chunks.length) status('The browser recorded nothing. Please try again in Chrome.', true);
+            if (discard || !chunks.length) { setBtn('⬇️', 'Download Video', false); return; }
+            const type = recorder.mimeType || mime || 'video/webm';
+            if (monitor && peak < 0.02 && onSilent) {
+                status('The recording had no sound, retrying with the built-in voice...', true);
+                setTimeout(onSilent, 300);
+                return;
+            }
+            showResult(new Blob(chunks, { type }), type.includes('mp4') ? 'mp4' : 'webm');
+            if (endNote) status(endNote, true);
+            if (monitor && peak < 0.02) {
+                status('⚠️ Video saved, but NO VOICE was picked up (the browser did not pass its built-in voices to the recorder). ' +
+                    'Fix: open "Human-like Hindi Voices", paste a free ElevenLabs key, then press Download Video again. That records both voices directly.', true);
+                neuralBox.open = true;
+            }
+            setBtn('✅', 'Download Video Again', false);
+        };
+        (function loop() { if (!drawing) return; drawFrame(rc, rctx); requestAnimationFrame(loop); })();
+        if (audioTracks[0]) audioTracks[0].addEventListener('ended', () => {
+            if (recorder.state !== 'inactive') { finish(true); if (isPlayingSequence) stopSkit(false); }
+        });
+
+        setBtn('🔴', 'Recording... (stay on this tab)', true);
+        status('Recording the skit now. Please wait until it finishes (about 15-30 seconds) and stay on this tab.');
+        recorder.start(250);
+        wd = setTimeout(() => finish(false), 150000); // safety: never record forever
+        if (isPlayingSequence) stopSkit(false);   // restart from the beginning (not watched yet)
+        setTimeout(() => {
+            if (!isPlayingSequence) playSceneBtn.click();
+            // now that the skit is running, watch for its end / a manual stop
+            setTimeout(() => {
+                if (!isPlayingSequence && recorder.state !== 'inactive') playSceneBtn.click(); // make sure it really started
+                observer.observe(playBtnText, { childList: true, characterData: true, subtree: true });
+            }, 400);
+        }, 500);
+    }
+
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+    // Records with voices the page generated itself (deterministic: the audio is fed straight into the video)
+    async function recordWithGenerated(provider) {
+        initAudioContext();
+        await prepareAll(provider, i => {
+            setBtn('⏳', `Preparing voices ${i + 1}/${SKIT_LINES.length}...`, true);
+            status(`Generating voices ${i + 1} of ${SKIT_LINES.length}...`);
+        });
+        forcedProvider = provider;
+        rec.dest = audioCtx.createMediaStreamDestination();
+        rec.an = audioCtx.createAnalyser(); rec.an.fftSize = 2048;
+        const mute = audioCtx.createGain(); mute.gain.value = 0;
+        origConnect.call(rec.an, mute); origConnect.call(mute, audioCtx.destination);
+        const cleanup = () => { rec.dest = null; rec.an = null; forcedProvider = null; };
+        const retry = provider === 'offline' ? null : () => { busy = true; recordWithGenerated('offline').catch(e => { cleanup(); reset(); status('Failed: ' + e.message, true); }); };
+        record(rec.dest.stream.getAudioTracks(), cleanup, true, null, retry);
+    }
+
+    const genFallback = () => {
+        status('The original voices could not be heard by the recorder, so this video uses the generated voice instead.', true);
+        busy = true;
+        recordWithGenerated('free').catch(e => { forcedProvider = null; rec.dest = null; rec.an = null; reset(); status('Failed: ' + e.message, true); });
+    };
+    async function tryDisplayCapture() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) return false;
+        try {
+            status('To keep the ORIGINAL voices: choose "This tab" and tick "Also share tab audio", then press Share.');
+            const display = await navigator.mediaDevices.getDisplayMedia({
+                video: true, audio: true, preferCurrentTab: true,
+                selfBrowserSurface: 'include', systemAudio: 'include'
+            });
+            const tracks = display.getAudioTracks();
+            if (tracks.length) {
+                record(tracks, () => display.getTracks().forEach(t => t.stop()), true, null, genFallback);
+                return true;
+            }
+            display.getTracks().forEach(t => t.stop());
+            status('No audio was shared. Trying another way...', true);
+        } catch (e) {
+            status('Screen/tab capture not available (' + (e && e.name ? e.name : 'error') + '). Trying another way...', true);
+        }
+        return false;
+    }
+
+    async function tryMic() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+        status('To keep the ORIGINAL voices: allow the microphone, turn the volume up and do not use headphones (the voices are recorded from the speaker). Stay quiet while it records.');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+            });
+            const tracks = stream.getAudioTracks();
+            if (!tracks.length) return false;
+            record(tracks, () => stream.getTracks().forEach(t => t.stop()), true, null, genFallback);
+            return true;
+        } catch (e) {
+            status('Microphone not available (' + (e && e.name ? e.name : 'error') + ').', true);
+            return false;
+        }
+    }
+
+    function recordWithoutVoices() {
+        const note = '⚠️ Video saved WITHOUT spoken voices (this browser cannot capture them). For voices, add a free ElevenLabs key under "Human-like Hindi Voices" and press Download Video again.';
+        status(note, true);
+        neuralBox.open = true;
+        rec.dest = audioCtx.createMediaStreamDestination();
+        record(rec.dest.stream.getAudioTracks(), () => { rec.dest = null; }, false, note);
+    }
+
+    async function startInner() {
+        initAudioContext();
+        status('Starting...');
+        if (!neuralOn() && !useGenCb.checked) {
+            // ORIGINAL character voices (the device voices you hear): record them from the tab audio / speaker
+            if (!isMobile && await tryDisplayCapture()) return;
+            if (await tryMic()) return;
+            status('Could not record the original voices here, using the generated voice instead...', true);
+        }
+        if (neuralOn()) saveSettings();
+        const prov = neuralOn() ? provSel.value : 'free';
+        try { await recordWithGenerated(prov); }
+        catch (e) {
+            forcedProvider = null; rec.dest = null; rec.an = null;
+            status('Voice step failed (' + (e && e.message ? e.message : e) + '). Using the built-in voice...', true);
+            await recordWithGenerated('offline');
+        }
+    }
+
+    async function startDownload() {
+        if (busy) return;
+        busy = true;
+        try {
+            if (!window.MediaRecorder || !storyCanvas.captureStream) {
+                status('This browser cannot record video. Please open this page in Chrome (Android/desktop) or Safari 14.5+.', true);
+                reset();
+                return;
+            }
+            await startInner();
+        } catch (e) {
+            status('Something went wrong: ' + (e && e.message ? e.message : e), true);
+            reset();
+        }
+    }
+    dlBtn.addEventListener('click', startDownload);
+})();
+    </script>
+
+    <!-- ADD-ON: Full Screen button for the stage -->
+    <style>
+        #stageViewport:fullscreen, #stageViewport:-webkit-full-screen { width: 100vw; height: 100vh; min-height: 100vh; background: #020617; }
+        #storyCanvas.rec-lock { object-fit: contain; }
+        #fullscreenBtn { transition: all .2s ease; }
+        #fullscreenBtn.fs-hot { font-size: 14px; padding: 10px 18px; background: linear-gradient(90deg,#ec4899,#8b5cf6); border-color: rgba(255,255,255,.6);
+            box-shadow: 0 0 0 0 rgba(236,72,153,.7); animation: fsPulse 1.6s infinite; }
+        @keyframes fsPulse { 70% { box-shadow: 0 0 0 14px rgba(236,72,153,0); } 100% { box-shadow: 0 0 0 0 rgba(236,72,153,0); } }
+        #stageViewport.fs-fallback { position: fixed; inset: 0; z-index: 9999; width: 100vw; height: 100dvh; min-height: 100dvh !important; background: #020617; }
+    </style>
+    <script>
+    (function () {
+        const stage = document.getElementById('stageViewport');
+        const btn = document.getElementById('fullscreenBtn');
+        const icon = document.getElementById('fsIcon');
+        const text = document.getElementById('fsText');
+        const nativeEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+        const isFull = () => nativeEl() === stage || stage.classList.contains('fs-fallback');
+
+        function refresh() {
+            const on = isFull();
+            icon.textContent = on ? '✕' : '⛶';
+            text.textContent = on ? 'Exit Full Screen' : 'Full Screen';
+            // the canvas sizes itself from its parent, so re-measure after the layout changes
+            [30, 250, 600].forEach(ms => setTimeout(() => { try { resizeCanvas(); } catch (e) {} }, ms));
+        }
+
+        async function enter() {
+            try {
+                if (stage.requestFullscreen) await stage.requestFullscreen();
+                else if (stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
+                else throw new Error('no fullscreen api');
+            } catch (e) {
+                stage.classList.add('fs-fallback'); // e.g. iPhone Safari: fill the whole window instead
+            }
+            try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); } catch (e) {}
+            refresh();
+        }
+        function exit() {
+            stage.classList.remove('fs-fallback');
+            try {
+                if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+                else if (document.webkitExitFullscreen && document.webkitFullscreenElement) document.webkitExitFullscreen();
+            } catch (e) {}
+            try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+            refresh();
+        }
+
+        btn.addEventListener('click', e => { e.stopPropagation(); isFull() ? exit() : enter(); });
+        document.addEventListener('fullscreenchange', refresh);
+        document.addEventListener('webkitfullscreenchange', refresh);
+        // highlight the button while the skit is playing
+        const pt = document.getElementById('playBtnText');
+        const hot = () => btn.classList.toggle('fs-hot', pt.textContent.trim() === 'Stop Scene' && !isFull());
+        new MutationObserver(hot).observe(pt, { childList: true, characterData: true, subtree: true });
+        document.addEventListener('fullscreenchange', hot);
+        hot();
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && stage.classList.contains('fs-fallback')) exit(); });
+    })();
+    </script>
+</body>
+</html>
